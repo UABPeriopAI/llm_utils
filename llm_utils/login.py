@@ -69,15 +69,15 @@ class OpenaiKeyHandler(BYOK_Handler):
 
 
     def _api_key_validation(self, api_key):
-                # TODO: timeout
-
         response = requests.get('https://api.openai.com/v1/engines', headers={ 'Authorization': 'Bearer ' + api_key})
 
         if response.status_code == 200:
             return True
         else:
+            print(f"Validation failed with status code: {response.status_code}")
+            print(f"Response: {response.text}")
             return False
-        
+
     def initialize_api_key(self, api_key):
         if self._api_key_validation(api_key):
             self._incorporate_api_key(api_key)
