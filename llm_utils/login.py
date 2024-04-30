@@ -16,25 +16,8 @@ class BYOK_Handler():
     def _api_key_validation(self, api_key):
         pass
 
-    def initialize_api_key(self, api_key, api_key_type):
-        self.api_key = api_key
-        self.api_key_type = api_key_type
-
-        if self.api_key_type == "Azure":
-            key_handler = AzureKeyHandler(self.CHAT, self.PUBMED_CHAT)
-        elif self.api_key_type == "OpenAI":
-            key_handler = OpenaiKeyHandler(self.CHAT, self.PUBMED_CHAT)
-        else:
-            st.error("Select the API key type.")
-            return False
-
-        initialized = key_handler._api_key_validation(self.api_key)
-
-        if initialized:
-            self._incorporate_api_key(self.api_key)
-            return True
-        else:
-            return False
+    def initialize_api_key(self, api_key):
+        pass
 
     def get_chat_function(self):
         return self.CHAT
