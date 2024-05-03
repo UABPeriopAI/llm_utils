@@ -3,11 +3,12 @@ import os
 import requests
 
 class BYOK_Handler():
-    def __init__(self, chat_config, pubmed_chat_config):
+    def __init__(self, chat_config, pubmed_chat_config=None, embedding_config=None):
         self.api_key_type = None
         self.api_key = None
         self.CHAT = chat_config
         self.PUBMED_CHAT = pubmed_chat_config
+        self.EMBEDDING_CONFIG = embedding_config
 
     def _incorporate_api_key(self, api_key):
         st.success('API key is valid.')
@@ -24,8 +25,9 @@ class BYOK_Handler():
 
     def get_pubmed_chat_function(self):
         return self.PUBMED_CHAT
-
-# AzureKeyHandler and OpenaiKeyHandler classes remain the same
+    
+    def get_embedding_function(self):
+        return self.EMBEDDING_CONFIG
 
 class AzureKeyHandler(BYOK_Handler):
 
