@@ -18,7 +18,13 @@ class BYOK_Handler():
         pass
 
     def initialize_api_key(self, api_key, end_point):
-        pass
+        if self._api_key_validation(api_key, end_point):
+            self._incorporate_api_key(api_key)
+            return True
+
+        else:
+            st.error('API key is invalid.')
+            return False
 
     def get_chat_function(self):
         return self.CHAT
@@ -40,18 +46,8 @@ class AzureKeyHandler(BYOK_Handler):
         else:
             return False
 
-    def initialize_api_key(self, api_key, end_point):
-        if self._api_key_validation(api_key, end_point):
-            self._incorporate_api_key(api_key)
-            return True
-
-        else:
-            st.error('API key is invalid.')
-            return False
-
 
 class OpenaiKeyHandler(BYOK_Handler):
-
 
     def _api_key_validation(self, api_key, end_point):
         response = requests.get(end_point, headers={ 'Authorization': 'Bearer ' + api_key})
@@ -62,14 +58,5 @@ class OpenaiKeyHandler(BYOK_Handler):
             print(f"Validation failed with status code: {response.status_code}")
             print(f"Response: {response.text}")
             return False
-
-    def initialize_api_key(self, api_key, end_point):
-        if self._api_key_validation(api_key, end_point):
-            self._incorporate_api_key(api_key)
-            return True
-        else:
-            st.error('API key is invalid.')
-            return False
-
 
 
