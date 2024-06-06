@@ -6,7 +6,6 @@ from langchain_community.document_loaders.csv_loader import CSVLoader
 from langchain_community.document_loaders.pdf import PyMuPDFLoader
 
 from llm_utils.api_utils.QueryInterface import QueryInterface
-from llm_utils.api_utils.FileHandler import ingest_docx_bytes
  
 
 class RAGServicer(QueryInterface):
