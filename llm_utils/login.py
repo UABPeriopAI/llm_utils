@@ -30,7 +30,6 @@ class BYOK_Handler():
         return self.EMBEDDING_CONFIG
 
 class AzureKeyHandler(BYOK_Handler):
-
     def _api_key_validation(self, api_key, end_point):
         # TODO: timeout
         response = requests.get(end_point + '/openai/models?api-version=2024-02-01', headers={ 'api-key': api_key})
@@ -51,8 +50,6 @@ class AzureKeyHandler(BYOK_Handler):
 
 
 class OpenaiKeyHandler(BYOK_Handler):
-
-
     def _api_key_validation(self, api_key, end_point):
         response = requests.get(end_point, headers={ 'Authorization': 'Bearer ' + api_key})
 
