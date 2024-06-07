@@ -1,2 +1,2 @@
 # llm_utils
-Custom utilities for custom-built LLM apps built by the University of Alabama at Birmingham Anesthesiology and Perioperative Medicine's Data Science team.
+Support utilities for custom-built LLM apps built by the Data Science team in the Department of Anesthesiology and Perioperative Medicine at the University of Alabama, Birmingham.
