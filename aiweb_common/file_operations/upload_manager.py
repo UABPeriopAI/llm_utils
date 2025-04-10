@@ -5,55 +5,99 @@ from abc import abstractmethod
 from io import BytesIO
 from pathlib import Path
 from typing import Any, Union
-
 import pandas as pd
 import pypandoc
 import streamlit as st
 from docx import Document
 from fastapi import BackgroundTasks, HTTPException
-
 from aiweb_common.file_operations.file_handling import ingest_docx_bytes
-
 
 class UploadManager:
     @abstractmethod
     def read_file(self, file, extension):
         raise NotImplementedError
-
     @abstractmethod
     def upload_file(self):
         raise NotImplementedError
 
+    def read_pdf(self, file, document_analysis_client):
+        poller = document_analysis_client.begin_analyze_document(
+            model_id="prebuilt-read", document=file
+        )
+        result = poller.result()
+        text = ""
+        for page in result.pages:
+            for line in page.lines:
+                text += line.content + "\n"
+        return text
 
-# name for compataibility, will want StreamlitUploadManager eventually
 class StreamlitUploadManager(UploadManager):
-    def __init__(self, message: str, file_types: list):
-        print("Initializing Upload Manager")
+    def __init__(
+        self,
+        file=None,
+        message: str = "Please upload a file",
+        file_types: list = None,
+        accept_multiple_files: bool = False,
+        document_analysis_client=None,
+    ):
+        """
+        Allows either an already-uploaded file (passed via `file`) or performs an interactive upload.
+
+        Args:
+            file: (Optional) an already-uploaded file object.
+            message: The label for the uploader widget.
+            file_types: List of allowed file extensions (default list if None).
+            accept_multiple_files: Whether to allow multiple file uploads.
+            document_analysis_client: (Optional) any additional client if needed.
+        """
+        self.file = file
         self.message = message
-        self.file_types = file_types
+        self.file_types = file_types if file_types is not None else ["csv", "xlsx", "docx", "pdf", "txt"]
+        self.accept_multiple_files = accept_multiple_files
+        self.document_analysis_client = document_analysis_client
+
+    def process_upload(self):
+        """
+        If no file has been provided during initialization, show the file uploader.
+        Then, process the file based on its extension.
+        Returns a tuple (processed_file, extension) or (None, None) if no file is provided.
+        """
+        # If no file was provided externally then invoke the uploader.
+        if self.file is None:
+            self.file = st.file_uploader(
+                label=self.message, 
+                type=self.file_types, 
+                accept_multiple_files=self.accept_multiple_files
+            )
+            if not self.file:
+                st.write("Please upload a file to continue...")
+                return None, None
+        # Call read_file on the provided file.
+        extension = Path(self.file.name).suffix
+        return self.read_file(self.file, extension=extension)
 
     def upload_file(self):
-        self.uploaded_file = st.file_uploader(self.message, type=self.file_types)
-        if self.uploaded_file is not None:
-            # TODO fix this error
-            return self.read_file(
-                self.uploaded_file, extension=Path(self.uploaded_file.name).suffix
-            )
-        else:
-            st.write("Please upload a file to continue...")
-            return None, None
+        """
+        Wraps process_upload for backward compatibility. You can choose your naming.
+        """
+        return self.process_upload()
 
     def read_file(self, file, extension):
-        print("Extension - ", extension)
+        # print("Extension - ", extension)
         if extension == ".xlsx":
-            print("Opening Excel file")
             return pd.read_excel(file), extension
         elif extension == ".docx":
-            print("Opening Word file")
-            with tempfile.NamedTemporaryFile(delete=False, suffix=".docx") as tmpfile:
-                tmpfile.write(file.getvalue())
-                return pypandoc.convert_file(tmpfile.name, "markdown"), extension
-        return None, None
+            doc = Document(file)
+            text = ""
+            for paragraph in doc.paragraphs:
+                text += paragraph.text + "\n"
+            return text, extension
+        elif extension == ".csv":
+            return pd.read_csv(file), extension
+        elif extension == ".pdf":
+            return self.read_pdf(file, self.document_analysis_client), extension
+        else:
+            return None, None
 
 
 class FastAPIUploadManager(UploadManager):
@@ -80,9 +124,19 @@ class FastAPIUploadManager(UploadManager):
         if extension == ".xlsx":
             print("Opening Excel file")
             return pd.read_excel(BytesIO(file))
+        elif extension == ".csv":
+            return pd.read_csv(BytesIO(file))
         elif extension == ".txt":
             print("Reading text file")
             return file.decode("utf-8")
+        elif extension == ".docx":
+            doc = Document(BytesIO(file))
+            text = ""
+            for paragraph in doc.paragraphs:
+                text += paragraph.text + "\n"
+            return text
+        elif extension == ".pdf":
+            return self.read_pdf(BytesIO(file), self.document_analysis_client)
         else:
             print("Converting file to Markdown")
             with tempfile.NamedTemporaryFile(delete=True, suffix=extension) as tmpfile:
