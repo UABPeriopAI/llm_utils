@@ -1,61 +1,23 @@
 import glob
 import os
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 
 import pyodbc
+import yaml
+from langchain.prompts import ChatPromptTemplate
+from langchain_core.messages.ai import AIMessage
 
 
-def manage_sensitive(name):
-    """
-    The `manage_sensitive` function retrieves sensitive information from different sources based on
-    deployment and development paths, as well as environment variables, and raises an error if the
-    secret is not found.
-
-    Args:
-      name: The `name` parameter in the `manage_sensitive` function is used to specify the name of the
-    sensitive information or secret that the function is trying to retrieve. The function first checks
-    for the existence of the secret in a deployment path, then in a development path using glob, and
-    finally as an environment
-
-    Returns:
-      The `manage_sensitive` function is designed to manage sensitive information retrieval from
-    different sources. It first checks for the secret file in the deployment path, then in the
-    development path using glob, and finally as an environment variable. If the secret is found in any
-    of these sources, it is returned. If no secret is found, a `KeyError` is raised with a message
-    indicating that the secret with
-    """
-    # Check in deployment path
-    deploy_secret_fpath = f"/run/secrets/{name}"
-    if os.path.exists(deploy_secret_fpath):
-        with open(deploy_secret_fpath, "r") as file:
-            return file.read().rstrip("\n")
-
-    # Check in development path using glob
-    develop_secret_paths = glob.glob(f"/workspaces/*/secrets/{name}.txt")
-    if develop_secret_paths:
-        # Assumes the first matching file is the correct one, adjust if necessary
-        with open(develop_secret_paths[0], "r") as file:
-            return file.read().rstrip("\n")
-
-    # Check environment variable last
-    v1 = os.getenv(name)
-    if v1 is not None:
-        return v1
-
-    # If no secret is found
-    raise KeyError(f"Secret {name} not found")
-
-
-class WorkflowHandler:
+class WorkflowHandler(ABC):
     def __init__(self):
         self.total_cost = 0.0
 
-    @abstractmethod
     def _get_filename(self):
+        # should not be forced. datafeasibility, for example, wouldn't use.
         raise NotImplementedError
 
-    @abstractmethod
     def _get_mime_type(self):
+        # should not be forced. datafeasibility, for example, wouldn't use.
         raise NotImplementedError
 
     @abstractmethod
@@ -160,6 +122,36 @@ class WorkflowHandler:
             )
             conn.commit()
 
+    def check_content_type(self, returned_content):
+        # TODO: consider changing to if hasattr content
+        if isinstance(returned_content, AIMessage):
+            extracted_content = returned_content.content
+        if isinstance(returned_content, str):
+            extracted_content = returned_content
+        else:
+            raise TypeError(
+                "Content not of type AIMessage or str. Check what invoke is returning. Langchain interfaces are inconsistent per API provider."
+            )
+        return extracted_content
+
+    # TODO is there a way to make this cleaner since self.promtpy_path and self._validate are only called in grandchildren
+    def load_prompty(self):
+        # self.prompty_path initialized by child
+        # This should likely be broken up more with to isolate functionality further
+        if not self.prompty_path.exists():
+            raise FileNotFoundError(f"Prompty file not found at: {self.prompty_path}")
+        with open(self.prompty_path, "r") as f:
+            prompty_content = f.read()
+        prompty_data = list(yaml.safe_load_all(prompty_content))
+        if not prompty_data or len(prompty_data) < 2:
+            raise ValueError("Invalid prompty file format.")
+        prompt_section = prompty_data[1]
+        prompt_template = prompt_section.get("prompt", {}).get("template", None)
+        if prompt_template is None:
+            raise ValueError("Prompt template not found in prompty file.")
+        self._validate_prompt_template(prompt_template)
+        return ChatPromptTemplate.from_template(prompt_template, template_format="jinja2")
+
     def log_to_database(
         self, app_config, content_to_log, start, finish, background_tasks, label=""
     ):
@@ -199,5 +191,47 @@ class WorkflowHandler:
                 label,
             )
         except KeyError:
-            # TODO add warning or log?
-            pass
+            raise KeyError(
+                "Failed writing to database. Check interface configuration and try again."
+            )
+
+
+def manage_sensitive(name):
+    """
+    The `manage_sensitive` function retrieves sensitive information from different sources based on
+    deployment and development paths, as well as environment variables, and raises an error if the
+    secret is not found.
+
+    Args:
+      name: The `name` parameter in the `manage_sensitive` function is used to specify the name of the
+    sensitive information or secret that the function is trying to retrieve. The function first checks
+    for the existence of the secret in a deployment path, then in a development path using glob, and
+    finally as an environment
+
+    Returns:
+      The `manage_sensitive` function is designed to manage sensitive information retrieval from
+    different sources. It first checks for the secret file in the deployment path, then in the
+    development path using glob, and finally as an environment variable. If the secret is found in any
+    of these sources, it is returned. If no secret is found, a `KeyError` is raised with a message
+    indicating that the secret with
+    """
+    # Check in deployment path
+    deploy_secret_fpath = f"/run/secrets/{name}"
+    if os.path.exists(deploy_secret_fpath):
+        with open(deploy_secret_fpath, "r") as file:
+            return file.read().rstrip("\n")
+
+    # Check in development path using glob
+    develop_secret_paths = glob.glob(f"/workspaces/*/secrets/{name}.txt")
+    if develop_secret_paths:
+        # Assumes the first matching file is the correct one, adjust if necessary
+        with open(develop_secret_paths[0], "r") as file:
+            return file.read().rstrip("\n")
+
+    # Check environment variable last
+    v1 = os.getenv(name)
+    if v1 is not None:
+        return v1
+
+    # If no secret is found
+    raise KeyError(f"Secret {name} not found")
