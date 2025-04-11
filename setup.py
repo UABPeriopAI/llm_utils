@@ -21,7 +21,7 @@ setup(
     author="Perioperative Data Science Team at UAB",
     author_email="rmelvin@uabmc.edu",
     url="https://github.com/UABPeriopAI/llm_utils/",
-    python_requires=">=3.10",
+    python_requires=">=3.11",
     packages=find_packages(),  # only look in directores with __init__.py
     extras_require={"dev": docs_packages + style_packages + dev_packages, "docs": docs_packages},
     install_requires=[required_packages],
