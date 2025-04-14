@@ -46,8 +46,7 @@ class DocxCreator:
         """
         doc.add_heading("Results", level=1)
         for method, metrics_data in results.items():
-            print("method - ", method)
-            print("metrics - ", metrics_data)
+
             doc.add_heading(method, level=2)
             
             # Check if the data is already structured into separate sections
