@@ -2,10 +2,30 @@ import streamlit as st
 
 
 class UIHelper:
+
     """
     A thin wrapper around Streamlit calls so the core logic isn’t tied directly to st.xxx calls.
     """
 
+    def hide_streamlit_branding():
+        hide_streamlit_style = """
+                <style>
+                #MainMenu {visibility: hidden;}
+                footer {visibility: hidden;}
+                </style>
+                """
+        st.markdown(hide_streamlit_style, unsafe_allow_html=True)
+    
+    def apply_uab_font():
+        streamlit_style = """
+                <style>
+                html, body, [class*="css"]  {
+                font-family: proxima-nova, sans-serif;
+                }
+                </style>
+                """
+        st.markdown(streamlit_style, unsafe_allow_html=True)
+    
     def __init__(self):
         self.session_state = st.session_state
 
