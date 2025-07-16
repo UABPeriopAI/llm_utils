@@ -168,3 +168,4 @@ cython_debug/
 # secrets
 .streamlit/secrets.toml
 secrets/*
+.aider*

@@ -1,5 +1,6 @@
 import streamlit as st
 
+#Depricated in prefrence for page_renderer - keeping around to ensure compatibility.
 def hide_streamlit_branding():
     hide_streamlit_style = """
             <style>
@@ -7,7 +8,8 @@ def hide_streamlit_branding():
             footer {visibility: hidden;}
             </style>
             """
-    st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
+    st.markdown(hide_streamlit_style, unsafe_allow_html=True)
+
 
 def apply_uab_font():
     streamlit_style = """
