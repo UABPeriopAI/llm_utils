@@ -38,6 +38,9 @@ class UIHelper:
     def checkbox(self, label, help, key=None):
         return st.checkbox(label=label, help=help, key=key)
 
+    def dataframe(self, data, **kwargs):
+        return st.dataframe(data, **kwargs)
+
     def download_button(self, label, data, file_name, mime, **kwargs):
         return st.download_button(label, data, file_name, mime, **kwargs)
 
