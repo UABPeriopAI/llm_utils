@@ -13,8 +13,14 @@
 		}
 	},
 
+    "containerEnv": {
+        "OPENAI_API_KEY": "${localEnv:OPENAI_API_KEY}"
+	},
+
 	// change for the specific project
-	"mounts": [],
+	"mounts": [
+
+	  ],
 
 	  "customizations":{
 		"vscode":{

@@ -2,15 +2,9 @@ import base64
 import os
 import tempfile
 
+from aiweb_common.fastapi.schemas import DecodeRequest
 from fastapi import APIRouter, BackgroundTasks, File, HTTPException, UploadFile
 from fastapi.responses import FileResponse
-from pydantic import BaseModel
-
-
-class DecodeRequest(BaseModel):
-    encoded_data: str
-    file_extension: str
-
 
 # TODO are the other classes with just type definitions to move here?
 
@@ -59,6 +53,4 @@ async def decode_to_file(request: DecodeRequest, background_tasks: BackgroundTas
         background_tasks.add_task(os.unlink, tmp_file_path)
         return response
     except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Failed to decode and generate file: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to decode and generate file: {str(e)}")

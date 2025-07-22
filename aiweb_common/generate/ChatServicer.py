@@ -1,15 +1,26 @@
+<<<<<<< HEAD
 from langchain_community.callbacks import get_openai_callback
 from langchain_core.messages import AIMessage, HumanMessage
 
 from aiweb_common.generate.QueryInterface import QueryInterface
 
+=======
+from aiweb_common.generate.QueryInterface import QueryInterface
+from langchain_community.callbacks import get_openai_callback
+from langchain_core.messages import AIMessage, HumanMessage
+
+>>>>>>> develop
 
 class ChatServicer(QueryInterface):
     def __init__(self, language_model_interface, prompt):
         super().__init__(language_model_interface)
+<<<<<<< HEAD
         assembled_system_chat_template = self.preparer.assemble_chat_template(
             prompt=prompt
         )
+=======
+        assembled_system_chat_template = self.preparer.assemble_chat_template(prompt=prompt)
+>>>>>>> develop
         self.assembled_system_chat_template = assembled_system_chat_template
 
     def generate_langchain_response(self, messages):

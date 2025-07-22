@@ -3,6 +3,8 @@ import os
 from docx import Document
 from docx.shared import Inches
 from fastapi import BackgroundTasks
+from collections.abc import Mapping
+
 import pandas as pd
 
 from .file_handling import file_to_base64, markdown_to_docx_temporary_file
@@ -14,9 +16,10 @@ class DocxCreator:
     including the results summary and figures.
     """
 
-    def __init__(self, results=None, figures=None):
+    def __init__(self, summary = None, results=None, figures=None):
         self.results = results
         self.figures = figures
+        self.summary = summary
 
  
     def _add_table(self, doc: Document, table_data: pd.DataFrame, heading: str, style: str = "LightShading-Accent1"):
@@ -40,74 +43,86 @@ class DocxCreator:
 
         doc.add_paragraph()
 
-    def _add_results_to_docx(self, doc: Document, results: dict):
-        """
-        Insert results into the DOCX, including tables of metrics.
-        """
-        doc.add_heading("Results", level=1)
-        for method, metrics_data in results.items():
-
-            doc.add_heading(method, level=2)
-            
-            # Check if the data is already structured into separate sections
-            if "metrics" in metrics_data:
-                overall_metrics_df = metrics_data["metrics"]
-            else:
-                # Create a dataframe from the flat metrics (excluding the classification report)
-                # Here we assume that 'Classification Report' is separate;
-                # Everything else is part of overall metrics.
-                overall_metrics = {k: v for k, v in metrics_data.items() if k != "Classification Report" and not isinstance(v, dict)}
-                overall_metrics_df = pd.DataFrame(list(overall_metrics.items()), columns=["Metric", "Value"])
-            
-            self._add_table(doc, overall_metrics_df, "Overall Metrics")
-            
-            # For classification report, try to get it from either 'report' or 'Classification Report'
-            if "report" in metrics_data:
-                class_report_df = metrics_data["report"]
-            elif "Classification Report" in metrics_data:
-                class_report_df = pd.DataFrame(metrics_data["Classification Report"]).transpose()
-            else:
-                class_report_df = None
-            
-            if class_report_df is not None:
-                self._add_table(doc, class_report_df, "Classification Report")
-            
-            # If there is any bootstrap information
-            if "bootstrap" in metrics_data:
-                self._add_table(doc, metrics_data["bootstrap"], "Bootstrap Confidence Intervals")
-            
-            doc.add_paragraph()
-            
-    def create_docx_report(self) -> Document:
-        doc = Document()
-        doc.add_heading("Model Evaluation Report", 0)
-
-        # Add the method comparisons / metrics overview.
-        if self.results:
-            try:
-                self._add_results_to_docx(doc, self.results)
-            except Exception as e:
-                print("Error in _add_results_to_docx:", e)
-                raise
-
+    def _add_figures(self, doc: Document):
         # Add figures / confusion matrices.
         if self.figures:
             doc.add_heading("Figures", level=1)
             for method, cm_fig in self.figures.items():
                 doc.add_heading(method, level=2)
                 buf = io.BytesIO()
-                try:
-                    cm_fig.savefig(buf, format="png", bbox_inches="tight")
-                except Exception as e:
-                    print(f"Error saving figure for {method}: {e}")
-                    raise
+                cm_fig.savefig(buf, format="png", bbox_inches="tight")
                 buf.seek(0)
-                try:
-                    doc.add_picture(buf, width=Inches(5))
-                except Exception as e:
-                    print(f"Error adding picture for {method}: {e}")
-                    raise
+                doc.add_picture(buf, width=Inches(5))
                 doc.add_paragraph()
+
+    def _add_results_to_docx(
+        self,
+        doc: Document,
+        results: Mapping[str, Mapping[str, object]],
+        *,
+        order: tuple[str, ...] | None = None,
+        pretty_names: Mapping[str, str] | None = None,
+    ) -> None:
+        """
+        Insert *all* results into the DOCX, no hard-coded section names required.
+
+        Parameters
+        ----------
+        doc : python-docx Document
+            The document to write into.
+        results : dict[str, dict[str, Any]]
+            Outer keys = method names.  
+            Inner keys = arbitrary section names whose values can be rendered
+            by ``self._add_table``.
+        order : tuple[str] | None, default None
+            If given, section keys in this tuple are shown first and in
+            exactly this order; any remaining keys follow in their natural order.
+        pretty_names : dict[str, str] | None, default None
+            Optional mapping that converts raw section keys into nicer
+            titles.  Anything not listed falls back to `title_case(key)`.
+        """
+        pretty_names = pretty_names or {}
+        order = order or ()
+
+        doc.add_heading("Results", level=1)
+        doc.add_heading("Summary", level=2)
+        doc.add_paragraph(self.summary)
+        doc.add_paragraph()
+        for method, sections in results.items():
+            doc.add_heading(str(method), level=2)
+
+            # 1️⃣ keys the caller explicitly asked for, in order …
+            for key in order:
+                if key in sections:
+                    self._add_table(doc, sections[key], pretty_names.get(key, self._title_case(key)))
+
+            # 2️⃣ any leftover keys (excluding those already shown) …
+            for key, data in sections.items():
+                if key in order:
+                    continue
+                self._add_table(doc, data, pretty_names.get(key, self._title_case(key)))
+
+            doc.add_paragraph()  # blank line between methods
+
+    @staticmethod
+    def _title_case(text: str) -> str:
+        """Generic fallback like 'bootstrap_confidence_intervals' → 'Bootstrap Confidence Intervals'."""
+        return text.replace("_", " ").title()
+
+    def create_docx_report(self) -> Document:
+        """
+        Create a DOCX report that includes a heading, the results section,
+        and any associated figures.
+        """
+        doc = Document()
+        doc.add_heading("Model Evaluation Report", 0)
+
+        # Add the method comparisons / metrics overview.
+        if self.results:
+            self._add_results_to_docx(doc, self.results)
+
+
+
         return doc
 
 class StreamlitDocxCreator(DocxCreator):
@@ -117,8 +132,8 @@ class StreamlitDocxCreator(DocxCreator):
     directly from the parent class now, so there's no need to redefine them.
     """
 
-    def __init__(self, results, figures):
-        super().__init__(results=results, figures=figures)
+    def __init__(self, summary, results, figures):
+        super().__init__(summary=summary, results=results, figures=figures)
         # Any additional Streamlit-specific logic can go here.
         # The DOCX generation is handled by the parent.
 

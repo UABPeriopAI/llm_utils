@@ -1,5 +1,8 @@
+azure-ai-formrecognizer
 mkdocs
 mkdocstrings
+black
+flake8
 isort
 streamlit
 pandas
@@ -17,4 +20,5 @@ fastapi
 python-magic
 pydantic
 pandas
+pdfplumber
 docx

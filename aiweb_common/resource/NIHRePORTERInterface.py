@@ -3,7 +3,10 @@ import json
 from datetime import datetime
 
 import requests
+<<<<<<< HEAD
 
+=======
+>>>>>>> develop
 from aiweb_common.resource import default_resource_config
 
 
@@ -44,7 +47,10 @@ class NIHRePORTERAPI:
         departments=default_resource_config.NIH_DEPARTMENTS,
         limit=500,
     ):
+<<<<<<< HEAD
 
+=======
+>>>>>>> develop
         # Open the CSV file for writing
         with open(filename, "w", newline="") as f:
             writer = csv.writer(f, quoting=csv.QUOTE_ALL)
@@ -66,9 +72,13 @@ class NIHRePORTERAPI:
                         payload = {
                             "criteria": {
                                 "fiscal_years": list(
+<<<<<<< HEAD
                                     range(
                                         current_year - (fiscals_years - 1), current_year
                                     )
+=======
+                                    range(current_year - (fiscals_years - 1), current_year)
+>>>>>>> develop
                                 ),
                                 "dept_types": [department],
                                 "award_type": "1",
@@ -130,9 +140,13 @@ class NIHRePORTERAPI:
                                 abstract = ""
 
                             try:
+<<<<<<< HEAD
                                 phr = self._sanitize_field(
                                     result.get("phr_text"), "phr_text"
                                 )
+=======
+                                phr = self._sanitize_field(result.get("phr_text"), "phr_text")
+>>>>>>> develop
                                 if phr is not None:
                                     phr = phr.replace("\n", " ")
                             except AttributeError:

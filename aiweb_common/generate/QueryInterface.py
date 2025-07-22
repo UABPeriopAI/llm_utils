@@ -1,8 +1,13 @@
 from abc import ABC
 
+<<<<<<< HEAD
 from langchain_community.callbacks import get_openai_callback
 
 from aiweb_common.generate.PromptAssembler import PromptAssembler
+=======
+from aiweb_common.generate.PromptAssembler import PromptAssembler
+from langchain_community.callbacks import get_openai_callback
+>>>>>>> develop
 
 
 class QueryInterface(ABC):

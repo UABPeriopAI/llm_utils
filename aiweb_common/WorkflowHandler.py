@@ -2,7 +2,7 @@ import glob
 import os
 from abc import ABC, abstractmethod
 
-import pyodbc
+
 import yaml
 from langchain.prompts import ChatPromptTemplate
 from langchain_core.messages.ai import AIMessage
@@ -51,6 +51,8 @@ class WorkflowHandler(ABC):
         The function `get_db_connection` returns a connection object to a SQL Server database using the
         provided server, database name, user, and password details.
         """
+        # for compatibility, temporarily only import pyodc when needed.
+        import pyodbc
         conn_str = (
             "DRIVER={ODBC Driver 17 for SQL Server};SERVER="
             + db_server
@@ -99,6 +101,8 @@ class WorkflowHandler(ABC):
         you need to differentiate between multiple instances of the same application in the database. If a
         `name
         """
+        # for compatibility, temporarily only import pyodc when needed.
+        import pyodbc
         with self._get_db_connection(
             db_server=app_config.DB_SERVER,
             db_name=app_config.DB_NAME,

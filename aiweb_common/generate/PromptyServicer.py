@@ -1,6 +1,13 @@
+<<<<<<< HEAD
 from langchain_prompty import create_chat_prompt
 from langchain_community.callbacks import get_openai_callback  # Add this import
 from aiweb_common.generate.QueryInterface import QueryInterface
+=======
+from aiweb_common.generate.QueryInterface import QueryInterface
+from langchain_community.callbacks import get_openai_callback  # Add this import
+from langchain_prompty import create_chat_prompt
+
+>>>>>>> develop
 
 class PromptyServicer(QueryInterface):
     def __init__(self, language_model_interface, prompty_file_path):

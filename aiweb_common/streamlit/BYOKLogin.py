@@ -57,9 +57,13 @@ class AzureKeyHandler(BYOK_Handler):
 
 class OpenaiKeyHandler(BYOK_Handler):
     def _api_key_validation(self, api_key, end_point):
+<<<<<<< HEAD
         response = requests.get(
             end_point, headers={"Authorization": "Bearer " + api_key}
         )
+=======
+        response = requests.get(end_point, headers={"Authorization": "Bearer " + api_key})
+>>>>>>> develop
 
         if response.status_code == 200:
             return True
