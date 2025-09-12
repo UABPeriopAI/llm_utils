@@ -30,7 +30,6 @@ class PubMedQueryGenerator(WorkflowHandler):
           The function `generate_search_string` returns the response generated based on the assembled
         prompt, after updating the total cost.
         """
-<<<<<<< HEAD
         prompt = default_resource_config.PUBMED_QUERY_PROMPT.format(
             self.input_research_q
         )
@@ -49,18 +48,6 @@ class PubMedQueryGenerator(WorkflowHandler):
         response, response_meta = self.single_response.generate_response(
             assembled_prompt
         )
-=======
-        prompt = default_resource_config.PUBMED_QUERY_PROMPT.format(self.input_research_q)
-        if loop_n > 0:
-            prompt = prompt + default_resource_config.PUBMED_FEW_RESULTS_PROMPT + last_query
-
-        assembled_prompt = self.single_response.single_response_service.preparer.assemble_prompt(
-            system_prompt=default_resource_config.PUBMED_SYSTEM_PROMPT,
-            user_prompt=prompt,
-        )
-
-        response, response_meta = self.single_response.generate_response(assembled_prompt)
->>>>>>> develop
         self._update_total_cost(response_meta)
 
         return response.content

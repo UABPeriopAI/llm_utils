@@ -17,12 +17,7 @@
         + [ChatSchemas](aiweb_common/generate/ChatSchemas.md)
         + [ChatServicer](aiweb_common/generate/ChatServicer.md)
         + [PromptAssembler](aiweb_common/generate/PromptAssembler.md)
-<<<<<<< HEAD
         + [PromptyResponse](aiweb_common/generate/PromptyResponseHandler.md)
-=======
-        + [PromptyHandler](aiweb_common/generate/PromptyHandler.md)
-        + [PromptyResponse](aiweb_common/generate/PromptyResponse.md)
->>>>>>> develop
         + [PromptyServicer](aiweb_common/generate/PromptyServicer.md)
         + [QueryInterface](aiweb_common/generate/QueryInterface.md)
         + [Response](aiweb_common/generate/Response.md)

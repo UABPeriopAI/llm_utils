@@ -5,32 +5,17 @@ from abc import abstractmethod
 from io import BytesIO
 from pathlib import Path
 from typing import Any, Union
-<<<<<<< HEAD
 import pandas as pd
 import pypandoc
 import streamlit as st
 from docx import Document
 from fastapi import BackgroundTasks, HTTPException
 from aiweb_common.file_operations.file_handling import ingest_docx_bytes
-=======
-
-import pandas as pd
-import pypandoc
-import streamlit as st
-from aiweb_common.file_operations.file_handling import ingest_docx_bytes
-from docx import Document
-from fastapi import BackgroundTasks, HTTPException
-
->>>>>>> develop
 
 class UploadManager:
     @abstractmethod
     def read_file(self, file, extension):
         raise NotImplementedError
-<<<<<<< HEAD
-=======
-
->>>>>>> develop
     @abstractmethod
     def upload_file(self):
         raise NotImplementedError
@@ -46,7 +31,6 @@ class UploadManager:
                 text += line.content + "\n"
         return text
 
-<<<<<<< HEAD
 class StreamlitUploadManager(UploadManager):
     def __init__(
         self,
@@ -69,20 +53,10 @@ class StreamlitUploadManager(UploadManager):
         self.file = file
         self.message = message
         self.file_types = file_types if file_types is not None else ["csv", "xlsx", "docx", "pdf", "txt"]
-=======
-
-class StreamlitUploadManager(UploadManager):
-    def __init__(
-        self, uploaded_file, accept_multiple_files: bool = False, document_analysis_client=None
-    ):
-        # print("Initializing Upload Manager")
-        self.uploaded_file = uploaded_file
->>>>>>> develop
         self.accept_multiple_files = accept_multiple_files
         self.document_analysis_client = document_analysis_client
 
     def process_upload(self):
-<<<<<<< HEAD
         """
         If no file has been provided during initialization, show the file uploader.
         Then, process the file based on its extension.
@@ -107,24 +81,6 @@ class StreamlitUploadManager(UploadManager):
         Wraps process_upload for backward compatibility. You can choose your naming.
         """
         return self.process_upload()
-=======
-        if self.uploaded_file is not None:
-            if self.accept_multiple_files:
-                data_list = []
-                extension_list = []
-                for item in self.uploaded_file:
-                    extension = Path(item.name).suffix
-                    data, extension = self.read_file(item, extension)
-                    data_list.append(data)
-                    extension_list.append(extension)
-                return data_list, extension_list
-            else:
-                extension = Path(self.uploaded_file.name).suffix
-                return self.read_file(self.uploaded_file, extension)
-        else:
-            st.write("Please upload a file to continue...")
-            return None, None
->>>>>>> develop
 
     def read_file(self, file, extension):
         # print("Extension - ", extension)
@@ -145,7 +101,6 @@ class StreamlitUploadManager(UploadManager):
 
 
 class FastAPIUploadManager(UploadManager):
-<<<<<<< HEAD
     def __init__(self, background_tasks: BackgroundTasks):
         self.background_tasks = background_tasks
 
@@ -164,13 +119,6 @@ class FastAPIUploadManager(UploadManager):
             Union[pd.DataFrame, str]: Depending on the file extension, either returns a DataFrame for Excel files
             or a markdown string for DOCX and TXT files.
         """
-=======
-    def __init__(self, background_tasks: BackgroundTasks, document_analysis_client=None):
-        self.background_tasks = background_tasks
-        self.document_analysis_client = document_analysis_client
-
-    def process_file_bytes(self, file: bytes, extension: str) -> Union[pd.DataFrame, str]:
->>>>>>> develop
         print("Processing file with extension - ", extension)
 
         if extension == ".xlsx":
@@ -197,7 +145,6 @@ class FastAPIUploadManager(UploadManager):
                 return pypandoc.convert_file(tmpfile.name, "markdown")
 
     def read_and_validate_file(self, encoded_file: str, extension: str) -> Any:
-<<<<<<< HEAD
         """
         The function reads and validates a base64 encoded file, then processes it based on the specified
         file extension.
@@ -218,26 +165,19 @@ class FastAPIUploadManager(UploadManager):
         "Failed to process the file" is raised. If any other exception occurs during the process, a
         HTTPException with status code 500 and the exception message is raised.
         """
-=======
->>>>>>> develop
         try:
             file_bytes = base64.b64decode(encoded_file)
             output = self.process_file_bytes(file_bytes, extension)
             if output is None:
-<<<<<<< HEAD
                 raise HTTPException(
                     status_code=422, detail="Failed to process the file"
                 )
-=======
-                raise HTTPException(status_code=422, detail="Failed to process the file")
->>>>>>> develop
             return output
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 class BytesToDocx(FastAPIUploadManager):
-<<<<<<< HEAD
     def __init__(self, background_tasks):
         super().__init__(background_tasks)
 
@@ -259,12 +199,6 @@ class BytesToDocx(FastAPIUploadManager):
           The function `process_file_bytes` returns the content of a document (cv_in_docx) after processing
         a file given as bytes input.
         """
-=======
-    def __init__(self, background_tasks, document_analysis_client=None):
-        super().__init__(background_tasks, document_analysis_client)
-
-    def process_file_bytes(self, file: bytes, extension=".docx") -> Document:
->>>>>>> develop
         if extension != ".docx":
             raise TypeError
         cv_in_docx_filepath, cv_in_docx = ingest_docx_bytes(file)

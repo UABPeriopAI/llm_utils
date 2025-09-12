@@ -56,9 +56,7 @@ def get_data_dir(
                     if isinstance(mount, str):
                         # Format: "type=bind,source=...,target=/data"
                         mount_parts = dict(
-                            part.split("=", 1)
-                            for part in mount.split(",")
-                            if "=" in part
+                            part.split("=", 1) for part in mount.split(",") if "=" in part
                         )
                         target_path_str = mount_parts.get("target")
                         source_path_str = mount_parts.get("source")
@@ -91,9 +89,7 @@ def get_data_dir(
                 if user_data_dir_str:
                     user_data_dir = Path(user_data_dir_str)
                     if user_data_dir.is_dir():
-                        logger.info(
-                            "Using user-configured data directory: %s", user_data_dir
-                        )
+                        logger.info("Using user-configured data directory: %s", user_data_dir)
                         return user_data_dir
             except json.JSONDecodeError:
                 logger.warning("Could not parse %s.", user_config_path)

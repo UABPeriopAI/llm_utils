@@ -51,9 +51,9 @@ class JSONResponse(BaseModel):
     This class represents a response containing JSON data in a base64-encoded string.
     Decode this string to obtain the original JSON content.
     """
+
     encoded_json: str = Field(
-        ...,
-        description="Base64-encoded JSON data. Decode to obtain the JSON file."
+        ..., description="Base64-encoded JSON data. Decode to obtain the JSON file."
     )
 
 

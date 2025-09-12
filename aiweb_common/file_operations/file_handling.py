@@ -3,18 +3,11 @@ import tempfile
 from datetime import datetime
 
 import magic
-<<<<<<< HEAD
 from docx import Document
 from fastapi import File, HTTPException, Query, UploadFile
 
 from aiweb_common.file_operations.text_format import convert_markdown_docx
 
-=======
-from aiweb_common.file_operations.text_format import convert_markdown_docx
-from docx import Document
-from fastapi import File, HTTPException, Query, UploadFile
-
->>>>>>> develop
 
 def file_to_base64(filepath):
     """Converts a file to a base64-encoded string."""
@@ -78,10 +71,6 @@ def ingest_docx_bytes(content):
     2. The Document object representing the content loaded from the temporary file
     """
     with tempfile.NamedTemporaryFile(delete=False, suffix=".docx") as temp_doc:
-<<<<<<< HEAD
-
-=======
->>>>>>> develop
         temp_doc.write(content)
         temp_doc.flush()  # Ensure all content is written to disk
 
@@ -148,13 +137,9 @@ def create_base64_file_validator(*allowed_mime_types):
 
         if mime_type not in allowed_mime_types:
             allowed_types_formatted = ", ".join(allowed_mime_types)
-<<<<<<< HEAD
             raise ValueError(
                 f"Incorrect file type. Required types: {allowed_types_formatted}"
             )
-=======
-            raise ValueError(f"Incorrect file type. Required types: {allowed_types_formatted}")
->>>>>>> develop
 
         return v
 

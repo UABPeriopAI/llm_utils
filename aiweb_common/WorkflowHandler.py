@@ -53,6 +53,7 @@ class WorkflowHandler(ABC):
         """
         # for compatibility, temporarily only import pyodc when needed.
         import pyodbc
+
         conn_str = (
             "DRIVER={ODBC Driver 17 for SQL Server};SERVER="
             + db_server
@@ -103,6 +104,7 @@ class WorkflowHandler(ABC):
         """
         # for compatibility, temporarily only import pyodc when needed.
         import pyodbc
+
         with self._get_db_connection(
             db_server=app_config.DB_SERVER,
             db_name=app_config.DB_NAME,

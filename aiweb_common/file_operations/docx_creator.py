@@ -16,13 +16,18 @@ class DocxCreator:
     including the results summary and figures.
     """
 
-    def __init__(self, summary = None, results=None, figures=None):
+    def __init__(self, summary=None, results=None, figures=None):
         self.results = results
         self.figures = figures
         self.summary = summary
 
- 
-    def _add_table(self, doc: Document, table_data: pd.DataFrame, heading: str, style: str = "LightShading-Accent1"):
+    def _add_table(
+        self,
+        doc: Document,
+        table_data: pd.DataFrame,
+        heading: str,
+        style: str = "LightShading-Accent1",
+    ):
         """
         Insert a table into the DOCX document.
         """
@@ -71,7 +76,7 @@ class DocxCreator:
         doc : python-docx Document
             The document to write into.
         results : dict[str, dict[str, Any]]
-            Outer keys = method names.  
+            Outer keys = method names.
             Inner keys = arbitrary section names whose values can be rendered
             by ``self._add_table``.
         order : tuple[str] | None, default None
@@ -94,7 +99,9 @@ class DocxCreator:
             # 1️⃣ keys the caller explicitly asked for, in order …
             for key in order:
                 if key in sections:
-                    self._add_table(doc, sections[key], pretty_names.get(key, self._title_case(key)))
+                    self._add_table(
+                        doc, sections[key], pretty_names.get(key, self._title_case(key))
+                    )
 
             # 2️⃣ any leftover keys (excluding those already shown) …
             for key, data in sections.items():
@@ -121,14 +128,13 @@ class DocxCreator:
         if self.results:
             self._add_results_to_docx(doc, self.results)
 
-
-
         return doc
+
 
 class StreamlitDocxCreator(DocxCreator):
     """
-    A specialized DocxCreator for Streamlit usage. 
-    It inherits the _add_results_to_docx and create_docx_report methods 
+    A specialized DocxCreator for Streamlit usage.
+    It inherits the _add_results_to_docx and create_docx_report methods
     directly from the parent class now, so there's no need to redefine them.
     """
 
@@ -140,8 +146,8 @@ class StreamlitDocxCreator(DocxCreator):
 
 class FastAPIDocxCreator(DocxCreator):
     """
-    A specialized DocxCreator for FastAPI usage. 
-    Inherits the common DOCX-report functionality and adds a method 
+    A specialized DocxCreator for FastAPI usage.
+    Inherits the common DOCX-report functionality and adds a method
     to handle markdown-to-docx conversion.
     """
 

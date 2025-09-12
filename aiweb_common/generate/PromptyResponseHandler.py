@@ -1,6 +1,7 @@
 from aiweb_common.generate.PromptyServicer import PromptyServicer
 from aiweb_common.generate.Response import ResponseHandler
 
+
 class PromptyResponseHandler(ResponseHandler):
     def __init__(self, llm_interface, prompty_file_path):
         super().__init__(llm_interface)

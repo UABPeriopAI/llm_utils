@@ -1,10 +1,5 @@
 import streamlit as st
 
-<<<<<<< HEAD
-
-=======
-#Depricated in prefrence for page_renderer - keeping around to ensure compatibility.
->>>>>>> develop
 def hide_streamlit_branding():
     hide_streamlit_style = """
             <style>

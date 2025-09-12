@@ -4,6 +4,7 @@ import logging
 from pathlib import Path
 from typing import Any, List, Optional, Tuple
 import types
+
 logger = logging.getLogger(__name__)
 
 
@@ -18,6 +19,7 @@ class _ContainerProxy(types.SimpleNamespace):
     sb.checkbox(...)   # == st.sidebar.checkbox(...)
     sb.columns(2)      # == st.sidebar.columns(2)
     """
+
     def __init__(self, container):
         super().__init__()
         object.__setattr__(self, "_c", container)
@@ -27,19 +29,21 @@ class _ContainerProxy(types.SimpleNamespace):
 
     def __setattr__(self, name, value):
         setattr(self._c, name, value)
-        
+
+
 class StreamlitUIHelper:
 
     """
     A thin wrapper around Streamlit calls so the core logic isn’t tied directly to st.xxx calls.
     """
+
     def __init__(self):
         self.session_state = st.session_state
         self.sidebar = _ContainerProxy(st.sidebar)
-    
+
     def _target(self, sidebar: bool = False):
         return st.sidebar if sidebar else st
-    
+
     def hide_streamlit_branding(self):
         hide_streamlit_style = """
                 <style>
@@ -48,7 +52,7 @@ class StreamlitUIHelper:
                 </style>
                 """
         st.markdown(hide_streamlit_style, unsafe_allow_html=True)
-    
+
     def apply_uab_font(self):
         streamlit_style = """
                 <style>
@@ -58,7 +62,7 @@ class StreamlitUIHelper:
                 </style>
                 """
         st.markdown(streamlit_style, unsafe_allow_html=True)
-        
+
     @staticmethod
     def setup_page(page_title: str, page_icon: str = "🤖", hide_branding: bool = True):
         """
@@ -72,8 +76,8 @@ class StreamlitUIHelper:
         st.set_page_config(
             page_title=page_title,
             page_icon=page_icon,
-            #layout="wide",
-            initial_sidebar_state="collapsed"
+            # layout="wide",
+            initial_sidebar_state="collapsed",
         )
 
         if hide_branding:
@@ -108,8 +112,7 @@ class StreamlitUIHelper:
             return uploaded_file, extension
 
         return None, None
-    
-    
+
     def select_columns(
         self,
         data: pd.DataFrame,
@@ -145,9 +148,7 @@ class StreamlitUIHelper:
             The list of selected column names (may be empty).
         """
         options = [c for c in data.columns if c != exclude_column]
-        defaults = [
-            c for c in (default_columns or []) if c in options
-        ]
+        defaults = [c for c in (default_columns or []) if c in options]
 
         return self.multiselect(
             f"3️⃣ Select the {select_type} columns to include",
@@ -156,20 +157,20 @@ class StreamlitUIHelper:
             key=key,
             help=help_text,
         )
-        
+
     def balloons(self):
         st.balloons()
 
     def button(self, label, key=None, sidebar: bool = False, **kwargs):
-        kwargs.pop("sidebar", None)          # remove the sidebar marker
+        kwargs.pop("sidebar", None)  # remove the sidebar marker
         return self._target(sidebar).button(label, key=key, **kwargs)
 
     def checkbox(self, label, help, key=None, **kwargs):
         return st.checkbox(label=label, help=help, key=key, **kwargs)
-    
+
     def columns(self, spec, **kwargs):
         return st.columns(spec, **kwargs)
-    
+
     def dataframe(self, data, **kwargs):
         return st.dataframe(data=data, **kwargs)
 
@@ -183,9 +184,7 @@ class StreamlitUIHelper:
         return st.expander(label, expanded=expanded, **kwargs)
 
     def file_uploader(self, label, type, key, **kwargs):
-        return st.file_uploader(
-            label, type=type, key=key, **kwargs
-        )
+        return st.file_uploader(label, type=type, key=key, **kwargs)
 
     def header(self, text, **kwargs):
         return st.header(text, **kwargs)
@@ -198,7 +197,7 @@ class StreamlitUIHelper:
 
     def metric(self, label, value, **kwargs):
         return st.metric(label, value, **kwargs)
-        
+
     def multiselect(self, label, options, **kwargs):
         return st.multiselect(label, options, **kwargs)
 
@@ -216,13 +215,13 @@ class StreamlitUIHelper:
 
     def selectbox(self, label, options, **kwargs):
         return st.selectbox(label, options, **kwargs)
-        
-    def slider(self,label, min_value, max_value, value, step, key, **kwargs):
+
+    def slider(self, label, min_value, max_value, value, step, key, **kwargs):
         return st.slider(label, min_value, max_value, value, step, key, **kwargs)
-    
+
     def spinner(self, text, **kwargs):
         return st.spinner(text, **kwargs)
-    
+
     def stop(self):
         st.stop()
 
@@ -237,7 +236,7 @@ class StreamlitUIHelper:
 
     def text(self, body, **kwargs):
         st.text(body, **kwargs)
-        
+
     def text_input(self, label, value="", key=None, **kwargs):
         return st.text_input(label, value=value, key=key, **kwargs)
 
