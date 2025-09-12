@@ -16,6 +16,7 @@ exclude = '''
     | .mypy_cache
     | .tox
     | venv
+    | .venv
     | _build
     | buck-out
     | build
@@ -37,7 +38,7 @@ profile = "black"
 line_length = 100
 multi_line_output = 3
 include_trailing_comma = true
-virtual_env = "venv"
+skip = [".gitignore", ".dockerignore", ".venv/*"]
 
 #Development Dependencies
 [project.optional-dependencies]

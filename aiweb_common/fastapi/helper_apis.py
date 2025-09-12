@@ -2,9 +2,10 @@ import base64
 import os
 import tempfile
 
-from aiweb_common.fastapi.schemas import DecodeRequest
 from fastapi import APIRouter, BackgroundTasks, File, HTTPException, UploadFile
 from fastapi.responses import FileResponse
+
+from aiweb_common.fastapi.schemas import DecodeRequest
 
 # TODO are the other classes with just type definitions to move here?
 

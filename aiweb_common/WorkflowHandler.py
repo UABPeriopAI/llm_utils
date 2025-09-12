@@ -2,7 +2,6 @@ import glob
 import os
 from abc import ABC, abstractmethod
 
-
 import yaml
 from langchain.prompts import ChatPromptTemplate
 from langchain_core.messages.ai import AIMessage

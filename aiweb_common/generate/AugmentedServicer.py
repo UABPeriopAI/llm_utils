@@ -8,11 +8,10 @@ from langchain_community.vectorstores import FAISS
 
 from aiweb_common.generate.QueryInterface import QueryInterface
 
-#TODO Add documentation for methods and classes throughout
+
+# TODO Add documentation for methods and classes throughout
 class RAGServicer(QueryInterface):
-    def __init__(
-        self, language_model_interface, embedding_interface, vectorstore: Path
-    ):
+    def __init__(self, language_model_interface, embedding_interface, vectorstore: Path):
         self.vectorstore = vectorstore
         self.embedding_interface = embedding_interface
         super().__init__(language_model_interface)
@@ -33,7 +32,7 @@ class SearchServicer(QueryInterface):
         self.searchable = searchable
         super().__init__(language_model_interface)
 
-    #TODO fix yellow underline warning here
+    # TODO fix yellow underline warning here
     def retrieve_data(self, search_function):
         # docsearch = DocumentSearcher(self.searchable)  # Use a document searcher object
         retrieved_data = search_function(

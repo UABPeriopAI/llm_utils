@@ -1,5 +1,6 @@
 import streamlit as st
 
+
 def hide_streamlit_branding():
     hide_streamlit_style = """
             <style>

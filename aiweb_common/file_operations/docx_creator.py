@@ -1,11 +1,11 @@
 import io
 import os
-from docx import Document
-from docx.shared import Inches
-from fastapi import BackgroundTasks
 from collections.abc import Mapping
 
 import pandas as pd
+from docx import Document
+from docx.shared import Inches
+from fastapi import BackgroundTasks
 
 from .file_handling import file_to_base64, markdown_to_docx_temporary_file
 

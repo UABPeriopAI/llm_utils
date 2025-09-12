@@ -1,7 +1,8 @@
 from enum import Enum
 
-from aiweb_common.fastapi.validators import validate_xlsx_bytes
 from pydantic import BaseModel, Field, field_validator
+
+from aiweb_common.fastapi.validators import validate_xlsx_bytes
 
 
 class UploadableFiles(str, Enum):

@@ -3,6 +3,7 @@ import json
 from datetime import datetime
 
 import requests
+
 from aiweb_common.resource import default_resource_config
 
 
@@ -64,9 +65,7 @@ class NIHRePORTERAPI:
                         payload = {
                             "criteria": {
                                 "fiscal_years": list(
-                                    range(
-                                        current_year - (fiscals_years - 1), current_year
-                                    )
+                                    range(current_year - (fiscals_years - 1), current_year)
                                 ),
                                 "dept_types": [department],
                                 "award_type": "1",
@@ -128,9 +127,7 @@ class NIHRePORTERAPI:
                                 abstract = ""
 
                             try:
-                                phr = self._sanitize_field(
-                                    result.get("phr_text"), "phr_text"
-                                )
+                                phr = self._sanitize_field(result.get("phr_text"), "phr_text")
                                 if phr is not None:
                                     phr = phr.replace("\n", " ")
                             except AttributeError:

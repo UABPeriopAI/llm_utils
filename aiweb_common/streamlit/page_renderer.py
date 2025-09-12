@@ -1,9 +1,10 @@
-import streamlit as st
-import pandas as pd
 import logging
+import types
 from pathlib import Path
 from typing import Any, List, Optional, Tuple
-import types
+
+import pandas as pd
+import streamlit as st
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +33,6 @@ class _ContainerProxy(types.SimpleNamespace):
 
 
 class StreamlitUIHelper:
-
     """
     A thin wrapper around Streamlit calls so the core logic isn’t tied directly to st.xxx calls.
     """

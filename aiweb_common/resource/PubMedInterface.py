@@ -126,9 +126,13 @@ class PubMedInterface:
                 handle.close()
                 return record["IdList"]
             except HTTPError as e:
-                error_message = f"PubMed didn't respond (attempt {attempt + 1}/{self.max_retries}): {e}"
+                error_message = (
+                    f"PubMed didn't respond (attempt {attempt + 1}/{self.max_retries}): {e}"
+                )
                 if attempt < self.max_retries:
-                    wait_message = f"Waiting {self.delay_seconds} seconds before trying PubMed again..."
+                    wait_message = (
+                        f"Waiting {self.delay_seconds} seconds before trying PubMed again..."
+                    )
                     print(error_message)
                     print(wait_message)
                     if self.streamlit_context:
@@ -188,9 +192,13 @@ class PubMedInterface:
                 parsed_df = pd.DataFrame(parsed_data)
                 return parsed_df
             except HTTPError as e:
-                error_message = f"PubMed didn't respond (attempt {attempt + 1}/{self.max_retries}): {e}"
+                error_message = (
+                    f"PubMed didn't respond (attempt {attempt + 1}/{self.max_retries}): {e}"
+                )
                 if attempt < self.max_retries:
-                    wait_message = f"Waiting {self.delay_seconds} seconds before trying PubMed again..."
+                    wait_message = (
+                        f"Waiting {self.delay_seconds} seconds before trying PubMed again..."
+                    )
                     print(error_message)
                     print(wait_message)
                 else:
@@ -222,9 +230,13 @@ class PubMedInterface:
                 handle.close()
                 return articles
             except HTTPError as e:
-                error_message = f"PubMed didn't respond (attempt {attempt + 1}/{self.max_retries}): {e}"
+                error_message = (
+                    f"PubMed didn't respond (attempt {attempt + 1}/{self.max_retries}): {e}"
+                )
                 if attempt < self.max_retries:
-                    wait_message = f"Waiting {self.delay_seconds} seconds before trying PubMed again..."
+                    wait_message = (
+                        f"Waiting {self.delay_seconds} seconds before trying PubMed again..."
+                    )
                     print(error_message)
                     print(wait_message)
                     if self.streamlit_context:

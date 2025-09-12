@@ -7,9 +7,7 @@ from aiweb_common.generate.QueryInterface import QueryInterface
 class ChatServicer(QueryInterface):
     def __init__(self, language_model_interface, prompt):
         super().__init__(language_model_interface)
-        assembled_system_chat_template = self.preparer.assemble_chat_template(
-            prompt=prompt
-        )
+        assembled_system_chat_template = self.preparer.assemble_chat_template(prompt=prompt)
         self.assembled_system_chat_template = assembled_system_chat_template
 
     def generate_langchain_response(self, messages):

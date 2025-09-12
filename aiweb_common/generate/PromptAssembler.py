@@ -1,7 +1,9 @@
-from langchain_core.prompts import (ChatPromptTemplate,
-                                    HumanMessagePromptTemplate,
-                                    MessagesPlaceholder,
-                                    SystemMessagePromptTemplate)
+from langchain_core.prompts import (
+    ChatPromptTemplate,
+    HumanMessagePromptTemplate,
+    MessagesPlaceholder,
+    SystemMessagePromptTemplate,
+)
 
 
 class PromptAssembler:

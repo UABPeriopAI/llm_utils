@@ -137,9 +137,7 @@ def create_base64_file_validator(*allowed_mime_types):
 
         if mime_type not in allowed_mime_types:
             allowed_types_formatted = ", ".join(allowed_mime_types)
-            raise ValueError(
-                f"Incorrect file type. Required types: {allowed_types_formatted}"
-            )
+            raise ValueError(f"Incorrect file type. Required types: {allowed_types_formatted}")
 
         return v
 

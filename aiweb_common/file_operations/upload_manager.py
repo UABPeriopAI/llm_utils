@@ -5,17 +5,21 @@ from abc import abstractmethod
 from io import BytesIO
 from pathlib import Path
 from typing import Any, Union
+
 import pandas as pd
 import pypandoc
 import streamlit as st
 from docx import Document
 from fastapi import BackgroundTasks, HTTPException
+
 from aiweb_common.file_operations.file_handling import ingest_docx_bytes
+
 
 class UploadManager:
     @abstractmethod
     def read_file(self, file, extension):
         raise NotImplementedError
+
     @abstractmethod
     def upload_file(self):
         raise NotImplementedError
@@ -30,6 +34,7 @@ class UploadManager:
             for line in page.lines:
                 text += line.content + "\n"
         return text
+
 
 class StreamlitUploadManager(UploadManager):
     def __init__(
@@ -52,7 +57,9 @@ class StreamlitUploadManager(UploadManager):
         """
         self.file = file
         self.message = message
-        self.file_types = file_types if file_types is not None else ["csv", "xlsx", "docx", "pdf", "txt"]
+        self.file_types = (
+            file_types if file_types is not None else ["csv", "xlsx", "docx", "pdf", "txt"]
+        )
         self.accept_multiple_files = accept_multiple_files
         self.document_analysis_client = document_analysis_client
 
@@ -65,9 +72,9 @@ class StreamlitUploadManager(UploadManager):
         # If no file was provided externally then invoke the uploader.
         if self.file is None:
             self.file = st.file_uploader(
-                label=self.message, 
-                type=self.file_types, 
-                accept_multiple_files=self.accept_multiple_files
+                label=self.message,
+                type=self.file_types,
+                accept_multiple_files=self.accept_multiple_files,
             )
             if not self.file:
                 st.write("Please upload a file to continue...")
@@ -104,9 +111,7 @@ class FastAPIUploadManager(UploadManager):
     def __init__(self, background_tasks: BackgroundTasks):
         self.background_tasks = background_tasks
 
-    def process_file_bytes(
-        self, file: bytes, extension: str
-    ) -> Union[pd.DataFrame, str]:
+    def process_file_bytes(self, file: bytes, extension: str) -> Union[pd.DataFrame, str]:
         """
         Reads the file from byte string based on the file extension and returns
         either a DataFrame or a markdown string.
@@ -169,9 +174,7 @@ class FastAPIUploadManager(UploadManager):
             file_bytes = base64.b64decode(encoded_file)
             output = self.process_file_bytes(file_bytes, extension)
             if output is None:
-                raise HTTPException(
-                    status_code=422, detail="Failed to process the file"
-                )
+                raise HTTPException(status_code=422, detail="Failed to process the file")
             return output
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e)) from e

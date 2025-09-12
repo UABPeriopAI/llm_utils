@@ -15,19 +15,19 @@ style:
 	black .
 	flake8
 	python3 -m isort .
-	autopep8 --recursive --aggressive --aggressive .
+	autopep8 --in-place --recursive --aggressive --aggressive --exclude=".venv" .
 # Environment
-.ONESHELL:
+.PHONY: venv
 venv:
 	uv venv .venv
 	uv pip install -U pip setuptools wheel && \
 	uv pip install -e ".[dev]"
-	uv pip install -U -e ./llm_utils
+	uv pip install -U -e ./
 	uv pip install -U -r requirements.txt
 	uv pip install "black[jupyter]"
 	uv pip install "mkdocstrings[python]"
 	uv pip install "mkdocs-monorepo-plugin"
-	source .venv/bin/activate
+
 # Docs
 .PHONY: docs docs-serve
 docs:

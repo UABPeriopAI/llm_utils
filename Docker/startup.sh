@@ -24,3 +24,4 @@ echo 'source $PROJECT_ROOT/.venv/bin/activate' >> /home/vscode/.zshrc
 
 echo 'export PYTHONPATH="$PROJECT_ROOT/llm_utils:${PYTHONPATH}"' >> ~/.profile
 
+source .venv/bin/activate

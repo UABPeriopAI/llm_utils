@@ -28,9 +28,7 @@ class Message(BaseModel):
     time: datetime = Field(
         default_factory=lambda: datetime.now(pytz.timezone("US/Central")),
         description="The time the message was created",
-        example=datetime.now(
-            pytz.timezone("US/Central")
-        ).isoformat(),  # Example in Central Time
+        example=datetime.now(pytz.timezone("US/Central")).isoformat(),  # Example in Central Time
     )
 
     def __init__(self, **data):
@@ -42,20 +40,14 @@ class Message(BaseModel):
             self.time = self.time.astimezone(pytz.timezone("US/Central"))
 
     class Config:
-        json_encoders = {
-            datetime: lambda v: v.astimezone(pytz.timezone("US/Central")).isoformat()
-        }
+        json_encoders = {datetime: lambda v: v.astimezone(pytz.timezone("US/Central")).isoformat()}
 
 
 class ChatRequest(BaseModel):
     history: List[Message]
     chat_ai_choice: AIName = AIName.GPT35  # Default model choice
-    temperature: Annotated[
-        float, Field(strict=True, ge=0, le=2)
-    ] = 0.7  # Default temperature
-    system_message: str = (
-        DEFAULT_SYSTEM_MESSAGE  # Default instructions mimicking commercial gpt
-    )
+    temperature: Annotated[float, Field(strict=True, ge=0, le=2)] = 0.7  # Default temperature
+    system_message: str = DEFAULT_SYSTEM_MESSAGE  # Default instructions mimicking commercial gpt
 
 
 class ChatResponse(BaseModel):
