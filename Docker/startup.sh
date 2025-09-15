@@ -1,6 +1,8 @@
 #!/bin/sh
 PROJECT_ROOT="/workspaces/llm_utils"   
 VENV_PATH="$PROJECT_ROOT/.venv"         # Note: env kept in the repo folder
+UV_VENV_CLEAR=1 #Stop uv from prompting
+
 
 # Install uv globally first
 curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -13,7 +15,6 @@ uv venv "$VENV_PATH" --clear
 
 # Use the venv's uv
 export PATH="$VENV_PATH/bin:$PATH"
-
 uv sync --locked --all-extras --dev
 
 make venv
