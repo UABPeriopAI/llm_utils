@@ -5,7 +5,7 @@ from typing import Any, List, Optional, Tuple
 from io import BytesIO
 import pandas as pd
 import streamlit as st
-from ..report_builder.report_builder import ReportBuilder
+from aiweb_common.report_builder.report_builder import ReportBuilder
 
 logger = logging.getLogger(__name__)
 
