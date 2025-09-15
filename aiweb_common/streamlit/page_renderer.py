@@ -44,6 +44,30 @@ class StreamlitUIHelper:
     def _target(self, sidebar: bool = False):
         return st.sidebar if sidebar else st
 
+    def ensure_file(
+        self,
+        file=None,
+        upload_message="Please upload a file",
+        file_types=("csv",),
+        key="file_uploader",
+        info_message="You must upload a file to proceed.",
+        **kwargs
+    ):
+        """
+        Ensures a file is uploaded, prompts user if not, and shows an info message.
+        Returns the uploaded file or None.
+        """
+        if file is None:
+            file = self.file_uploader(
+                label=upload_message,
+                type=list(file_types),
+                key=key,
+                **kwargs,
+            )
+            if file is None:
+                self.info(info_message)
+        return file
+    
     def hide_streamlit_branding(self):
         hide_streamlit_style = """
                 <style>
