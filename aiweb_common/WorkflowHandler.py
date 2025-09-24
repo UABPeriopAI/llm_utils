@@ -5,11 +5,18 @@ from abc import ABC, abstractmethod
 import yaml
 from langchain.prompts import ChatPromptTemplate
 from langchain_core.messages.ai import AIMessage
+from langchain_openai.chat_models.base import ChatOpenAI
 
 
 class WorkflowHandler(ABC):
-    def __init__(self):
+    def __init__(self, openai_compatible_endpoint:str="", openai_compatible_model:str="", openai_compatible_key:str="" , name:str=""):
         self.total_cost = 0.0
+        self.llm_interface = ChatOpenAI(
+            base_url=openai_compatible_endpoint,
+            model=openai_compatible_model,
+            api_key=openai_compatible_key,
+            user=name,
+        )
 
     def _get_filename(self):
         # should not be forced. datafeasibility, for example, wouldn't use.
