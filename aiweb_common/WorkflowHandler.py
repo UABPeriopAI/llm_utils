@@ -14,8 +14,7 @@ class WorkflowHandler(ABC):
         self.total_cost = 0.0
 
     def _init_openai(self,
-                    **kwargs):
-        
+                    **kwargs):     
         self.llm_interface = ChatOpenAI(
             base_url=kwargs['openai_compatible_endpoint'],
             api_key=kwargs['openai_compatible_key'],
