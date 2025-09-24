@@ -2,15 +2,18 @@ import glob
 import os
 from abc import ABC, abstractmethod
 
+
 import yaml
 from langchain.prompts import ChatPromptTemplate
-from langchain_core.messages.ai import AIMessage
 from langchain_openai.chat_models.base import ChatOpenAI
+from langchain_core.messages.ai import AIMessage
 
 
 class WorkflowHandler(ABC):
-    def __init__(self, openai_compatible_endpoint:str="", openai_compatible_model:str="", openai_compatible_key:str="" , name:str=""):
+    def __init__(self):
         self.total_cost = 0.0
+
+    def _init_openai(self, openai_compatible_endpoint,openai_compatible_model, openai_compatible_key, name):
         self.llm_interface = ChatOpenAI(
             base_url=openai_compatible_endpoint,
             model=openai_compatible_model,
@@ -59,7 +62,6 @@ class WorkflowHandler(ABC):
         """
         # for compatibility, temporarily only import pyodc when needed.
         import pyodbc
-
         conn_str = (
             "DRIVER={ODBC Driver 17 for SQL Server};SERVER="
             + db_server
@@ -110,7 +112,6 @@ class WorkflowHandler(ABC):
         """
         # for compatibility, temporarily only import pyodc when needed.
         import pyodbc
-
         with self._get_db_connection(
             db_server=app_config.DB_SERVER,
             db_name=app_config.DB_NAME,
