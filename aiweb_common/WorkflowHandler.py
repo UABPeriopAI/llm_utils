@@ -13,7 +13,11 @@ class WorkflowHandler(ABC):
     def __init__(self):
         self.total_cost = 0.0
 
-    def _init_openai(self, openai_compatible_endpoint,openai_compatible_model, openai_compatible_key, name):
+    def _init_openai(self, 
+                    openai_compatible_endpoint:str="",
+                    openai_compatible_model:str="",
+                    openai_compatible_key:str="",
+                    name:str=""):
         self.llm_interface = ChatOpenAI(
             base_url=openai_compatible_endpoint,
             model=openai_compatible_model,
