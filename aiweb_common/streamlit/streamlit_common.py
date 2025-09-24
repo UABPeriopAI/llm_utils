@@ -1,6 +1,6 @@
 import streamlit as st
 
-
+##TODO: THis file is depricated use functionality in page_renderer
 def hide_streamlit_branding():
     hide_streamlit_style = """
             <style>

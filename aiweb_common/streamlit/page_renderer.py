@@ -2,9 +2,10 @@ import logging
 import types
 from pathlib import Path
 from typing import Any, List, Optional, Tuple
-
+from io import BytesIO
 import pandas as pd
 import streamlit as st
+from aiweb_common.report_builder.report_builder import ReportBuilder
 
 logger = logging.getLogger(__name__)
 
@@ -44,6 +45,45 @@ class StreamlitUIHelper:
     def _target(self, sidebar: bool = False):
         return st.sidebar if sidebar else st
 
+    def ensure_file(
+        self,
+        file=None,
+        upload_message="Please upload a file",
+        file_types=("csv",),
+        key="file_uploader",
+        info_message="You must upload a file to proceed.",
+        **kwargs
+    ):
+        """
+        Ensures a file is uploaded, prompts user if not, and shows an info message.
+        Returns the uploaded file or None.
+        """
+        if file is None:
+            file = self.file_uploader(
+                label=upload_message,
+                type=list(file_types),
+                key=key,
+                **kwargs,
+            )
+            if file is None:
+                self.info(info_message)
+        return file
+
+    def generate_dummy_report_download(self, report_text: str = None) -> bytes:
+        """
+        Generate a dummy report ZIP using ReportBuilder.
+        Returns ZIP bytes, ready for download.
+        """
+        with ReportBuilder() as rb:
+            # Build the report content
+            report_content = report_text or "Hello!\n\nThis is your dummy report generated on demand."
+            # Add as a text file inside the ZIP
+            rb.add_bytes(report_content.encode('utf-8'), "dummy_report.txt")
+            # Optionally add more artifacts if needed
+            # e.g., rb.add_dataframe(...)
+            zip_bytes: BytesIO = rb.build_zip()
+            return zip_bytes.getvalue()
+        
     def hide_streamlit_branding(self):
         hide_streamlit_style = """
                 <style>
