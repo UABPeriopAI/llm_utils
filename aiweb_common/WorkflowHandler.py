@@ -13,13 +13,12 @@ class WorkflowHandler(ABC):
     def __init__(self):
         self.total_cost = 0.0
 
-    def _init_openai(self,
-                    **kwargs):     
+    def _init_openai(self, *, openai_compatible_endpoint, openai_compatible_key, openai_compatible_model, name):
         self.llm_interface = ChatOpenAI(
-            base_url=kwargs['openai_compatible_endpoint'],
-            api_key=kwargs['openai_compatible_key'],
-            model=kwargs['openai_compatible_model'],
-            user=kwargs['name']
+            base_url=openai_compatible_endpoint,
+            api_key=openai_compatible_key,
+            model=openai_compatible_model,
+            user=name
         )
 
     def _get_filename(self):
