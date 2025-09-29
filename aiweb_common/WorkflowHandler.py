@@ -128,10 +128,11 @@ class WorkflowHandler(ABC):
             conn.commit()
 
     def check_content_type(self, returned_content):
+        print(f"DEBUG: check_content_type received type={type(returned_content)}, value={repr(returned_content)}")
         # TODO: consider changing to if hasattr content
         if isinstance(returned_content, AIMessage):
             extracted_content = returned_content.content
-        if isinstance(returned_content, str):
+        elif isinstance(returned_content, str):
             extracted_content = returned_content
         else:
             raise TypeError(
