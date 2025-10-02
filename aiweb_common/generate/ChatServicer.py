@@ -11,10 +11,26 @@ class ChatServicer(QueryInterface):
         self.assembled_system_chat_template = assembled_system_chat_template
 
     def generate_langchain_response(self, messages):
-        # Define the chat chain
+        """
+        Generate a response from the language model, supporting image update triggers.
+
+        Args:
+            messages (List[Message]): The chat history/messages.
+
+        Returns:
+            Tuple[str|dict, Any]: The response content (str or dict if image update) and metadata.
+        """
         chain = self.assembled_system_chat_template | self.language_model_interface
         with get_openai_callback() as response_meta:
             response = chain.invoke({"messages": messages})
+
+        # If the response contains an image update, encode as dict
+        # Convention: If response has 'image_update' attribute, return dict
+        if hasattr(response, "image_update") and response.image_update is not None:
+            return {
+                "text": response.content,
+                "image_update": response.image_update
+            }, response_meta
         return response.content, response_meta
 
     def update_history(self, message, chat_history):

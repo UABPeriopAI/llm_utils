@@ -24,7 +24,7 @@ class AIName(str, Enum):
 
 class Message(BaseModel):
     role: Role = Field(example=Role.human)
-    content: str
+    content: str  # May be plain text or a JSON string encoding image update triggers
     time: datetime = Field(
         default_factory=lambda: datetime.now(pytz.timezone("US/Central")),
         description="The time the message was created",
@@ -38,6 +38,31 @@ class Message(BaseModel):
             self.time = pytz.timezone("US/Central").localize(self.time)
         else:
             self.time = self.time.astimezone(pytz.timezone("US/Central"))
+
+    def get_image_update(self):
+        """
+        If content encodes an image update trigger (as JSON), return the image update dict.
+        Otherwise, return None.
+
+        Returns
+        -------
+        dict or None
+            The image update trigger dict if present, else None.
+
+        Example
+        -------
+        >>> msg = Message(content='{"text": "Here is your image", "image_update": {"url": "img.png"}}')
+        >>> msg.get_image_update()
+        {'url': 'img.png'}
+        """
+        import json
+        try:
+            obj = json.loads(self.content)
+            if isinstance(obj, dict) and "image_update" in obj:
+                return obj["image_update"]
+        except Exception:
+            pass
+        return None
 
     class Config:
         json_encoders = {datetime: lambda v: v.astimezone(pytz.timezone("US/Central")).isoformat()}
