@@ -18,6 +18,11 @@ class PromptAssembler:
 
     @staticmethod
     def assemble_chat_template(prompt, role: str = "system", **kwargs):
+        # If prompt contains curly braces, escape them for Jinja2 safety
+        if isinstance(prompt, str):
+            print("[DEBUG] PromptAssembler.assemble_chat_template - original prompt:", prompt, flush=True)
+            prompt = prompt.replace("{", "{{").replace("}", "}}")
+            print("[DEBUG] PromptAssembler.assemble_chat_template - escaped prompt:", prompt, flush=True)
         chat_template = ChatPromptTemplate.from_messages(
             [
                 (
@@ -27,4 +32,5 @@ class PromptAssembler:
                 MessagesPlaceholder(variable_name="messages"),
             ]
         )
+        print("[DEBUG] PromptAssembler.assemble_chat_template - chat_template:", chat_template, flush=True)
         return chat_template
