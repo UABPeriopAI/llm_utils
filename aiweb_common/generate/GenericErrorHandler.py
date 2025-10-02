@@ -30,9 +30,7 @@ Raises:
     RuntimeError: If all retries are exhausted and the operation still fails.
 """
 
-from typing import Callable, Any, TypeVar
-
-T = TypeVar("T")
+from typing import Callable
 
 
 class GenericErrorHandler:
@@ -47,9 +45,9 @@ class GenericErrorHandler:
 
     def __init__(
         self,
-        operation: Callable[[], T],
-        error_predicate: Callable[[T], bool],
-        correction_callback: Callable[[int, T], None],
+        operation: Callable[[], object],
+        error_predicate: Callable[[object], bool],
+        correction_callback: Callable[[int, object], None],
         max_retries: int = 5,
     ) -> None:
         """
