@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 
 
 import yaml
-from langchain.prompts import ChatPromptTemplate
+from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai.chat_models.base import ChatOpenAI
 from langchain_core.messages.ai import AIMessage
 
