@@ -1,3 +1,4 @@
+"configuration utils for highres_common"
 import json
 import os
 import random
@@ -8,21 +9,27 @@ import yaml
 import numpy as np
 
 
-def load_json_from_url(url):
+def load_config_from_url(url: Union[str, bytes], file_format: str = "json", encoding: str = "utf-8"
+) -> dict:
     """
-    It loads JSON data from a URL
+    It loads configuration data from a URL (json or yaml)
 
     Args:
-      url: The URL to load JSON data from.
+      url: The URL to load config data from.
+      file_format: format to load ("yaml" or "json"). Default "json"
+      encoding: response decoding. Default "utf-8"
 
     Returns:
-      A dictionary of the JSON data.
+      A dictionary of the parsed data.
     """
 
     try:
         with urlopen(url) as response:
-            data = json.load(response)
-        return data
+            data = response.read().decode(encoding)
+        if file_format == "yaml":
+            return yaml.safe_load(data)
+        else:
+            return json.loads(data)
     except Exception as e:
         raise RuntimeError(f"Failed to load JSON from URL '{url}': {e}") from e
 
@@ -45,7 +52,7 @@ def load_config(
     Raises:
       RuntimeError: If loading fails or the config is invalid
     """
-    if format not in {"json", "yaml"}:
+    if file_format not in {"json", "yaml"}:
         raise ValueError(f"Unsupported config format: {format}")
     try:
         if file_format == "json":
@@ -102,7 +109,7 @@ def save_config(
             with open(filepath, "w", encoding="utf-8") as fp:
                 json.dump(data, indent=2, fp=fp, cls=cls, sort_keys=sortkeys)
         elif file_format == "yaml":
-            with open(filepath, "w", encoding = "utf-8") as fp:
+            with open(filepath, "w", encoding = encoding) as fp:
                 yaml.safe_dump(data, fp, default_flow_style = False)
         else:
             raise ValueError(f"Unsupported config format: {file_format}")
