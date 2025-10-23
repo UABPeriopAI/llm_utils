@@ -1,5 +1,9 @@
 import json
+import os
+import random
+from typing import Optional, Type, Union
 from urllib.request import urlopen
+import yaml
 
 import numpy as np
 
@@ -14,50 +18,111 @@ def load_json_from_url(url):
     Returns:
       A dictionary of the JSON data.
     """
-    data = json.loads(urlopen(url).read())
-    return data
 
+    try:
+        with urlopen(url) as response:
+            data = json.load(response)
+        return data
+    except Exception as e:
+        raise RuntimeError(f"Failed to load JSON from URL '{url}': {e}") from e
 
-def load_dict(filepath):
+def load_config(
+        source: Union[str, bytes],
+        file_format: str = "json",
+        encoding: str = "utf-8"
+    ) -> dict:
     """
-    Load a dictionary from a JSON's filepath.
+    Load configuration file from path, URL, or raw string.
 
     Args:
-      filepath: The filepath to the JSON file.
+      source: File path, URL, or raw config string
+      format: config format ("json", "yaml")
+      encoding: encoding for text based formats
 
     Returns:
-      A dictionary.
+      parsed config as a dictionary
+
+    Raises:
+      RuntimeError: If loading fails or the config is invalid
     """
+    if format not in {"json", "yaml"}:
+        raise ValueError(f"Unsupported config format: {format}")
+    try:
+        if file_format == "json":
+            if isinstance(source, str) and source.startswith("http"):
+                with urlopen(source) as response:
+                    return json.load(response)
+            elif os.path.isfile(source):
+                with open(source, "r", encoding="utf-8") as fp:
+                    return json.load(fp)
+            else:
+                return json.loads(source if isinstance(source, str) else source.decode(encoding))
 
-    with open(filepath, "r") as fp:
-        d = json.load(fp)
-    return d
+        elif file_format == "yaml":
+            if os.path.isfile(source):
+                with open(source, "r", encoding="utf-8") as fp:
+                    return yaml.safe_load(fp)
+            else:
+                return yaml.safe_load(source if isinstance(source, str) else source.decode(encoding))
+        else:
+            raise ValueError(f"Unsupported config format: {format}")
+    except Exception as e:
+        raise RuntimeError(f"Failed to load JSON: {e}") from e
 
 
-def save_dict(d, filepath, cls=None, sortkeys=False):
+def save_config(
+        data: Union[dict, list],
+        filepath: str,
+        file_format: str = "jsn",
+        encoding: str = "utf-8",
+        cls: Optional[Type[json.JSONEncoder]] = None,
+        sortkeys: bool = False,
+        overwrite: bool = True
+  ) -> None:
     """
-    It saves a dictionary to a specific location.
+    It saves a dictionary to a JSON or YAML in a specific location.
 
     Args:
-      d: The dictionary to save.
+      data: The dictionary orlist to serialize.
       filepath: The path to the file to save the dictionary to.
-      cls: A custom JSONEncoder subclass. If specified, the object will use this encoder instead of the
-    default.
+      file_format: format to save ("json" or "yaml")
+      cls: A custom JSONEncoder subclass. If specified, the object will use this encoder instead
+        of the default.
       sortkeys: If True, the keys of the dictionary are sorted before writing. Defaults to False
+      encoding: File encoding (default: "utf-8").
+      overwrite: Whether to overwrite the existing file or not. (default: True)
+
+    Raises:
+      RuntimeError: If saving fails due to I/O or serialization error.
     """
+    if not overwrite and os.path.exists(filepath):
+        raise RuntimeError(f"File already exists: {filepath}")
+    try:
+        if file_format == "json":
+            with open(filepath, "w", encoding="utf-8") as fp:
+                json.dump(data, indent=2, fp=fp, cls=cls, sort_keys=sortkeys)
+        elif file_format == "yaml":
+            with open(filepath, "w", encoding = "utf-8") as fp:
+                yaml.safe_dump(data, fp, default_flow_style = False)
+        else:
+            raise ValueError(f"Unsupported config format: {file_format}")
+    
+    except Exception as e:
+        raise RuntimeError(f"Failed to save dictionary to '{filepath}': {e}") from e
 
-    with open(filepath, "w") as fp:
-        json.dump(d, indent=2, fp=fp, cls=cls, sort_keys=sortkeys)
 
-
-def set_seeds(seed=42):
+def set_seeds(seed: Union[int, float] = 42) -> int:
     """
     `set_seeds` sets the seed for reproducibility
 
     Args:
       seed: The seed for the random number generator. Defaults to 42
+    
+    Returns:
+      Seed value used
     """
 
     # Set seeds
-    seed = np.random.seed(seed)
-    return seed
+    random.seed(seed)
+    np.random.seed(seed)
+    return int(seed)
