@@ -1,4 +1,5 @@
 # tests/test_tableone_creator.py
+import pytest
 from pathlib import Path
 import tempfile
 import os

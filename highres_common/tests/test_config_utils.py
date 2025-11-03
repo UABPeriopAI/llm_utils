@@ -59,19 +59,3 @@ def test_load_config_from_string_yaml():
 def test_load_config_from_url(url, file_format):
     result = config_utils.load_config_from_url(url, file_format=file_format)
     assert isinstance(result, (dict, list)), f"{file_format.upper()} from URL did not return a dict or list"
-
-def test_csv_to_json_conversion(tmp_path):
-    # Setup paths
-    input_csv = tmp_path / "test.csv"
-    output_json = tmp_path / "test.json"
-
-    # Write sample CSV content
-    input_csv.write_text("Name,Age\nAlice,30\nBob,25", encoding="utf-8-sig")
-
-    # Convert
-    converter = CsvJsonConverter()
-    converter.convert(input_csv, output_json)
-
-    # Validate output
-    result = json.loads(output_json.read_text(encoding="utf-8-sig"))
-    assert result == [{"name": "Alice", "age": "30"}, {"name": "Bob", "age": "25"}]

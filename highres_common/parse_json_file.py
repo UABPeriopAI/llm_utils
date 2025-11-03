@@ -1,11 +1,36 @@
+import csv
+import itertools
 import json
 from pathlib import Path
+from typing import Union
 
 import numpy as np
 from sickbay import data
-
 from config import config
 
+class CsvJsonConverter:
+    def __init__(self, encoding: str = "utf-8", indent: int = 4):
+        self.encoding = encoding
+        self.indent = indent
+
+    @staticmethod
+    def _lower_first(iterator):
+        first = next(iterator)
+        first = first.lstrip('\ufeff').lower()
+        return itertools.chain([first], iterator)
+
+    def convert(self, csv_path: Union[str, Path], json_path: Union[str, Path]) -> None:
+        csv_path = Path(csv_path)
+        json_path = Path(json_path)
+        json_array = []
+
+        with csv_path.open(encoding=self.encoding) as csvf:
+            reader = csv.DictReader(self._lower_first(csvf))
+            for row in reader:
+                json_array.append(row)
+
+        with json_path.open("w", encoding=self.encoding) as jsonf:
+            json.dump(json_array, jsonf, indent=self.indent)
 
 def generate_map(patient_ids, mrnlist):
     """
