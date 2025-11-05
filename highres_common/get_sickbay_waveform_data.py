@@ -1,7 +1,7 @@
 from sickbay import data
 import pandas as pd
 
-WAVEFORM_CLASSES = {
+SICKBAY_WAVEFORM_CLASSES = {
     "Arterial Blood Pressure Waveform",
     "ECG Lead II",
     "Pulmonary Artery Pressure Waveform",
@@ -19,19 +19,19 @@ WAVEFORM_CLASSES = {
     "Optical Density A CH4",
 }
 
-class WaveformLoader:
+class SickbayWaveformLoader:
     def __init__(self, verbose=False):
         self.verbose = verbose
 
     def get(self, class_name, patient_id, start, stop):
-        if class_name not in WAVEFORM_CLASSES:
+        if class_name not in SICKBAY_WAVEFORM_CLASSES:
             raise NameError(
-                f"Incompatible request: '{class_name}' is not a supported waveform class. \n"
-                f"Supported classes include: \n - " + "\n - ".join(sorted(WAVEFORM_CLASSES))
+                f"Incompatible request: '{class_name}' is not a supported sickbay_waveform class. \n"
+                f"Supported classes include: \n - " + "\n - ".join(sorted(SICKBAY_WAVEFORM_CLASSES))
             )
         
         if self.verbose:
-            print(f"Requesting waveform: {class_name}")
+            print(f"Requesting sickbay_waveform: {class_name}")
             print(f"PatientID: {patient_id}")
             print(f"Time range: {start} to {stop}")
 
@@ -51,19 +51,19 @@ class WaveformLoader:
             raise TypeError("Expected a pandas dataframe.")
         
         if df.empty:
-            raise ValueError("Waveform data is empty.")
+            raise ValueError("Sickbay_waveform data is empty.")
         
         if "timestamp" not in df.columns:
-            raise ValueError("Missing 'timestamp' column in waveform data.")
+            raise ValueError("Missing 'timestamp' column in sickbay_waveform data.")
         
         if df["timestamp"].isnull().any():
-            raise ValueError("Waveform contains missing timestamps.")
+            raise ValueError("Sickbay_waveform contains missing timestamps.")
         
         if df.isnull().any().any():
-            print("Warning: Waveform contains NaNs.")
-
+            print("Warning: Sickbay_waveform contains NaNs.")
+ 
         if self.verbose:
-            print(f"Waveform shape: {df.shape}")
+            print(f"Sickbay_waveform shape: {df.shape}")
             print(f"Columns: {list(df.columns)}")
 
     def summary(self, df):

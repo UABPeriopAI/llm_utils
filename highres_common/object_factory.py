@@ -30,5 +30,5 @@ class ObjectFactory:
         """
         builder = self._builders.get(key)
         if not builder:
-            raise ValueError(key)
+            raise ValueError(f"No builder registered for key: {key}")
         return builder(**kwargs)
