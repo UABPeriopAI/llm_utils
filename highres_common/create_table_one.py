@@ -39,6 +39,6 @@ class TableOneCreator():
         mytable = TableOne(data=df, **self.vars_dict) # create TableOne
         self.output_path.parent.mkdir(parents=True, exist_ok=True) # save to excel
         mytable.to_excel(self.output_path)
-        logger.info("✅ Saved Tableone to {self.output_path}")
+        logger.info(f"✅ Saved Tableone to {self.output_path}")
         return mytable
     

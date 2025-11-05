@@ -1,18 +1,18 @@
-# Introduction 
-TODO: Give a short introduction of your project. Let this section explain the objectives or the motivation behind this project. 
+# highres_common
 
-# Getting Started
-TODO: Guide users through getting your code up and running on their own system. In this section you can talk about:
-1.	Installation process
-2.	Software dependencies
-3.	Latest releases
-4.	API references
+Reusable utilities used by the highres project.
 
-# Build and Test
-TODO: Describe and show how to build your code and run the tests. 
+This package contains small helpers for configuration management, JSON/CSV parsing,
+time-series utilities, MLflow inspection helpers, and Sickbay waveform loaders.
 
-# Contribute
-TODO: Explain how other users and developers can contribute to make your code better. 
+Quick start
+- Install requirements: pip install -r requirements.txt
+- Run tests: pytest -q
 
-If you want to learn more about creating good readme files then refer the following [guidelines](https://docs.microsoft.com/en-us/azure/devops/repos/git/create-a-readme?view=azure-devops). You can also seek inspiration from the below readme files:
-- [Visual Studio Code](https://github.com/Microsoft/vscode)
+Modules
+- config_utils: ConfigUtils for loading/saving JSON/YAML configs.
+- parse_json_file: CSV <-> JSON helpers and mapping utilities for patient MRN ↔ patient IDs.
+- get_sickbay_waveform_data: SickbayWaveformLoader for waveform retrieval and validation.
+- create_table_one: TableOneCreator to build TableOne summaries.
+
+See docs/ for more detailed documentation if available.

@@ -1,3 +1,4 @@
+import logging
 import numpy as np
 import pytest
 from highres_common.error_utils import ErrorAnalysis
@@ -43,10 +44,11 @@ def test_mean_function():
     assert isinstance(mean_rmse, float)
     assert mean_rmse >= 0
 
-def test_nan_warning(capfd):
+def test_nan_warning(caplog):
     y_true_nan = y_true.astype(float)
     y_true_nan[0, 0] = np.nan
     ea = ErrorAnalysis(y_true_nan, y_pred)
-    _ = ea.rmse_all()
-    out, _ = capfd.readouterr()
-    assert "NaN detected" in out
+    with caplog.at_level(logging.WARNING):
+        _ = ea.rmse_all()
+
+    assert "NaN detected" in caplog.text

@@ -5,7 +5,7 @@ import random
 import numpy as np
 import pytest
 
-from highres_common.config_utils import ConfigUtils, CsvJsonConverter
+from highres_common.config_utils import ConfigUtils
 
 
 # Create a reusable instance for tests

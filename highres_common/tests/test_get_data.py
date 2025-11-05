@@ -22,13 +22,13 @@ def test_find_csv_folders(tmp_path):
     assert len(found) == 2
 
 def test_get_folders(tmp_path):
-    # Create dummy files
     (tmp_path / "file1.txt").write_text("text")
     (tmp_path / "file2.csv").write_text("csv")
     helper = FileHelper(tmp_path)
     folders = helper.get_folders(["*.txt", "*.csv"])
-    assert any(f.name == "file1.txt" for f in folders)
-    assert any(f.name == "file2.csv" for f in folders)
+
+    # Should return the parent folder (tmp_path) once
+    assert tmp_path in folders
 
 def test_get_files(tmp_path):
     # Create folders and files

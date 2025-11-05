@@ -1,3 +1,4 @@
+import logging
 import pytest
 from io import StringIO
 from contextlib import redirect_stdout
@@ -24,39 +25,44 @@ class DummyRun:
             "tags": {"model": "xgboost", "dataset": "ICU_waveforms"}
         })()
 
-def test_print_experiment_info():
+def test_print_experiment_info(caplog):
     exp = DummyExperiment()
     diag = MlflowInfo(experiment=exp)
-    with StringIO() as buf, redirect_stdout(buf):
+    with caplog.at_level(logging.INFO):
         diag.print_experiment_info()
-        output = buf.getvalue()
-    assert "Experiment Info" in output
-    assert "Name: Test Experiment" in output
 
-def test_print_run_info():
+    assert "Experiment Info" in caplog.text
+    assert "Name: Test Experiment" in caplog.text
+
+def test_print_run_info(caplog):
     run = DummyRun()
     diag = MlflowInfo(run=run)
-    with StringIO() as buf, redirect_stdout(buf):
+    with caplog.at_level(logging.INFO):
         diag.print_run_info()
-        output = buf.getvalue()
-    assert "Run Info" in output
-    assert "Run ID: abc123" in output
-    assert "    - lr: 0.01" in output
 
-def test_print_run_metrics():
+    assert "Run Info" in caplog.text
+    assert "Run ID: abc123" in caplog.text
+    assert "Status: FINISHED" in caplog.text
+
+def test_print_run_metrics(caplog):
     run = DummyRun()
     diag = MlflowInfo(run=run)
-    with StringIO() as buf, redirect_stdout(buf):
+    with caplog.at_level(logging.INFO):
         diag.print_run_metrics()
-        output = buf.getvalue()
-    assert "Run Metrics" in output
-    assert "accuracy: 0.92" in output
 
-def test_print_run_tags():
+    assert "Run Metrics" in caplog.text
+    for k, v in run.data.metrics.items():
+        assert k in caplog.text
+        assert str(v) in caplog.text
+
+def test_print_run_tags(caplog):
     run = DummyRun()
     diag = MlflowInfo(run=run)
-    with StringIO() as buf, redirect_stdout(buf):
+
+    with caplog.at_level(logging.INFO):
         diag.print_run_tags()
-        output = buf.getvalue()
-    assert "Run Tags" in output
-    assert "model: xgboost" in output
+
+    assert "Run Tags" in caplog.text
+    for k, v in run.data.tags.items():
+        assert k in caplog.text
+        assert str(v) in caplog.text

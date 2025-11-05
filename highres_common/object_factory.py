@@ -1,32 +1,47 @@
-# source: https://realpython.com/factory-method-python/
+"""
+A simple factory registry for creating objects by key.
+
+Style aligned with aiweb_common: module docstring, typing, and concise docstrings.
+"""
+from __future__ import annotations
+from typing import Any, Callable, Dict
+
 class ObjectFactory:
-    def __init__(self):
-        self._builders = {}
+    """
+    Register builder callables under keys and create objects via those builders.
 
-    def register_builder(self, key, builder):
+    Example:
+        factory = ObjectFactory()
+        factory.register_builder("svc", lambda **kwargs: Service(**kwargs))
+        svc = factory.create("svc", config=config)
+    """
+
+    def __init__(self) -> None:
+        self._builders: Dict[str, Callable[..., Any]] = {}
+
+    def register_builder(self, key: str, builder: Callable[..., Any]) -> None:
         """
-        The `register_builder` function adds a builder object to a dictionary with a specified key.
+        Register a builder callable under the provided key.
 
-        :param key: The `key` parameter in the `register_builder` method is used as a unique identifier for
-        the builder that is being registered. It is typically a string or any other hashable object that can
-        be used as a key in a dictionary to store and retrieve the corresponding builder object
-        :param builder: The `register_builder` method is used to register a builder function with a specific
-        key in the `_builders` dictionary. The `key` parameter is the identifier for the builder function,
-        and the `builder` parameter is the actual function that will be stored in the dictionary under that
-        key
+        Args:
+            key: Unique string identifier for the builder.
+            builder: Callable that returns an instance when called with kwargs.
         """
         self._builders[key] = builder
 
-    def create(self, key, **kwargs):
+    def create(self, key: str, **kwargs) -> Any:
         """
-        The `create` function takes a key and keyword arguments, retrieves a builder based on the key, and
-        returns the result of calling the builder with the provided arguments.
+        Create an object using the builder registered for `key`.
 
-        :param key: The `key` parameter in the `create` method is used to determine which builder function
-        to use for creating an object. It is used to look up the appropriate builder function from the
-        `_builders` dictionary based on the provided key
-        :return: The `create` method returns the result of calling the builder function associated with the
-        given key, passing in the keyword arguments `kwargs`.
+        Args:
+            key: The builder key.
+            **kwargs: Forwarded to the builder callable.
+
+        Returns:
+            The object returned by the builder.
+
+        Raises:
+            ValueError: If no builder is registered for the key.
         """
         builder = self._builders.get(key)
         if not builder:
