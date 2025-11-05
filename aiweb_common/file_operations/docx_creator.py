@@ -6,7 +6,8 @@ import pandas as pd
 from docx import Document
 from docx.shared import Inches
 from fastapi import BackgroundTasks
-
+from collections.abc import Mapping
+import pandas as pd
 from .file_handling import file_to_base64, markdown_to_docx_temporary_file
 
 
@@ -90,8 +91,9 @@ class DocxCreator:
         order = order or ()
 
         doc.add_heading("Results", level=1)
-        doc.add_heading("Summary", level=2)
-        doc.add_paragraph(self.summary)
+        if self.summary:
+            doc.add_heading("Summary", level=2)
+            doc.add_paragraph(self.summary)
         doc.add_paragraph()
         for method, sections in results.items():
             doc.add_heading(str(method), level=2)
@@ -127,6 +129,8 @@ class DocxCreator:
         # Add the method comparisons / metrics overview.
         if self.results:
             self._add_results_to_docx(doc, self.results)
+            self._add_figures(doc)
+
 
         return doc
 
@@ -138,7 +142,7 @@ class StreamlitDocxCreator(DocxCreator):
     directly from the parent class now, so there's no need to redefine them.
     """
 
-    def __init__(self, summary, results, figures):
+    def __init__(self,  results, figures, summary=None):
         super().__init__(summary=summary, results=results, figures=figures)
         # Any additional Streamlit-specific logic can go here.
         # The DOCX generation is handled by the parent.

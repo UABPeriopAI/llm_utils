@@ -19,7 +19,7 @@ style:
 # Environment
 .PHONY: venv
 venv:
-	uv venv .venv
+	uv venv .venv --clear
 	uv pip install -U pip setuptools wheel && \
 	uv pip install -e ".[dev]"
 	uv pip install -U -e ./
@@ -27,7 +27,8 @@ venv:
 	uv pip install "black[jupyter]"
 	uv pip install "mkdocstrings[python]"
 	uv pip install "mkdocs-monorepo-plugin"
-
+	source .venv/bin/activate
+	
 # Docs
 .PHONY: docs docs-serve
 docs:
