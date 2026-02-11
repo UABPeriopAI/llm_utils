@@ -241,6 +241,13 @@ def manage_sensitive(name):
         with open(develop_secret_paths[0], "r") as file:
             return file.read().rstrip("\n")
 
+    # Check in additional development path using glob
+    additional_secret_paths = glob.glob(f"/mnt/p/Secrets/{name}.txt")
+    if additional_secret_paths:
+        # Assumes the first matching file is the correct one, adjust if necessary
+        with open(additional_secret_paths[0], "r") as file:
+            return file.read().rstrip("\n")
+
     # Check environment variable last
     v1 = os.getenv(name)
     if v1 is not None:
