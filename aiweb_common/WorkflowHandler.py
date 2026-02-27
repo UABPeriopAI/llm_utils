@@ -1,11 +1,39 @@
 import glob
 import os
 from abc import ABC, abstractmethod
+from typing import Any, List
 
 import yaml
 from langchain_core.messages.ai import AIMessage
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai.chat_models.base import ChatOpenAI
+
+
+def extract_response_text(content: Any) -> str:
+    """Extract plain text from an LLM response content field.
+
+    The Chat Completions API returns ``content`` as a plain string, while the
+    Responses API (used by GPT-5 series models) returns it as a list of content
+    blocks, e.g. ``[{"type": "output_text", "text": "..."}]``.  This helper
+    normalises both formats to a stripped string.
+
+    Args:
+        content: The ``response.content`` value from a LangChain ``AIMessage``.
+
+    Returns:
+        The extracted text with leading/trailing whitespace removed.
+    """
+    if isinstance(content, str):
+        return content.strip()
+    if isinstance(content, list):
+        parts: List[str] = []
+        for block in content:
+            if isinstance(block, dict):
+                parts.append(str(block.get("text", "")))
+            elif isinstance(block, str):
+                parts.append(block)
+        return "".join(parts).strip()
+    return str(content).strip()
 
 
 class WorkflowHandler(ABC):
@@ -151,16 +179,15 @@ class WorkflowHandler(ABC):
             conn.commit()
 
     def check_content_type(self, returned_content):
-        # TODO: consider changing to if hasattr content
+        """Extract text from an LLM response, handling AIMessage and Responses API formats."""
         if isinstance(returned_content, AIMessage):
-            extracted_content = returned_content.content
+            return extract_response_text(returned_content.content)
         if isinstance(returned_content, str):
-            extracted_content = returned_content
-        else:
-            raise TypeError(
-                "Content not of type AIMessage or str. Check what invoke is returning. Langchain interfaces are inconsistent per API provider."
-            )
-        return extracted_content
+            return returned_content
+        raise TypeError(
+            "Content not of type AIMessage or str. Check what invoke is returning. "
+            "Langchain interfaces are inconsistent per API provider."
+        )
 
     # TODO is there a way to make this cleaner since self.promtpy_path and self._validate are only called in grandchildren
     def load_prompty(self):
