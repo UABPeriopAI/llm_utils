@@ -34,7 +34,7 @@ The `use_responses_api` kwarg on `ChatOpenAI` was added in langchain-openai
 
 ### 2. Detect Responses API models
 
-Add a helper that decides whether a model name requires the Responses API.
+*If there's a possibility of using non-5-series models,* add a helper that decides whether a model name requires the Responses API.
 In Grant_Editor this lives in `workflow.py`, but you can put it wherever your
 project initialises its LLM:
 
