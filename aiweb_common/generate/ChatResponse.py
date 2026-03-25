@@ -5,7 +5,6 @@ from aiweb_common.generate.Response import ResponseHandler
 class ChatResponseHandler(ResponseHandler):
     def __init__(self, llm_interface, prompt):
         super().__init__(llm_interface)
-        print("initializing chat servicer")
         self.chat_service = ChatServicer(self.llm_interface, prompt)
 
     def generate_response(self, messages):
