@@ -1,5 +1,5 @@
 [project]
-name = "llm_utils"
+name = "aiweb-common"
 version = "0.1.0"
 description = "PoC"
 requires-python = ">=3.11"
