@@ -1,10 +1,11 @@
 import base64
+import io
 import os
 import tempfile
 from abc import abstractmethod
 from io import BytesIO
 from pathlib import Path
-from typing import Any, Union
+from typing import Any, Optional, Union
 
 import pandas as pd
 import pypandoc
@@ -12,6 +13,7 @@ import streamlit as st
 from docx import Document
 from fastapi import BackgroundTasks, HTTPException
 
+from aiweb_common.file_operations.document_processor import DocumentProcessor
 from aiweb_common.file_operations.file_handling import ingest_docx_bytes
 
 
@@ -24,7 +26,34 @@ class UploadManager:
     def upload_file(self):
         raise NotImplementedError
 
-    def read_pdf(self, file, document_analysis_client):
+    def read_pdf(self, file, document_analysis_client=None):
+        """Extract text from a PDF.
+
+        Uses the ``DocumentProcessor`` stored on ``self`` when available.
+        Falls back to the legacy ``document_analysis_client`` argument for
+        backward compatibility.
+        """
+        processor: Optional[DocumentProcessor] = getattr(
+            self, "document_processor", None
+        )
+        if processor is not None:
+            # Ensure we have raw bytes for the processor interface
+            if isinstance(file, (io.RawIOBase, io.BufferedIOBase, BytesIO)):
+                file_bytes = file.read()
+            else:
+                file_bytes = file
+            return processor.extract_text(file_bytes)
+
+        # Legacy path: use the raw Azure client directly
+        if document_analysis_client is None:
+            document_analysis_client = getattr(
+                self, "document_analysis_client", None
+            )
+        if document_analysis_client is None:
+            raise ValueError(
+                "No DocumentProcessor or document_analysis_client available "
+                "for PDF extraction."
+            )
         poller = document_analysis_client.begin_analyze_document(
             model_id="prebuilt-read", document=file
         )
@@ -44,6 +73,7 @@ class StreamlitUploadManager(UploadManager):
         file_types: list = None,
         accept_multiple_files: bool = False,
         document_analysis_client=None,
+        document_processor: Optional[DocumentProcessor] = None,
     ):
         """
         Allows either an already-uploaded file (passed via `file`) or performs an interactive upload.
@@ -53,7 +83,9 @@ class StreamlitUploadManager(UploadManager):
             message: The label for the uploader widget.
             file_types: List of allowed file extensions (default list if None).
             accept_multiple_files: Whether to allow multiple file uploads.
-            document_analysis_client: (Optional) any additional client if needed.
+            document_analysis_client: (Optional) legacy Azure DocAI client.
+            document_processor: (Optional) a :class:`DocumentProcessor` instance
+                for PDF extraction.  Preferred over *document_analysis_client*.
         """
         self.file = file
         self.message = message
@@ -62,6 +94,7 @@ class StreamlitUploadManager(UploadManager):
         )
         self.accept_multiple_files = accept_multiple_files
         self.document_analysis_client = document_analysis_client
+        self.document_processor = document_processor
 
     def process_upload(self):
         """
@@ -102,14 +135,19 @@ class StreamlitUploadManager(UploadManager):
         elif extension == ".csv":
             return pd.read_csv(file), extension
         elif extension == ".pdf":
-            return self.read_pdf(file, self.document_analysis_client), extension
+            return self.read_pdf(file), extension
         else:
             return None, None
 
 
 class FastAPIUploadManager(UploadManager):
-    def __init__(self, background_tasks: BackgroundTasks):
+    def __init__(
+        self,
+        background_tasks: BackgroundTasks,
+        document_processor: Optional[DocumentProcessor] = None,
+    ):
         self.background_tasks = background_tasks
+        self.document_processor = document_processor
 
     def process_file_bytes(self, file: bytes, extension: str) -> Union[pd.DataFrame, str]:
         """
@@ -141,7 +179,7 @@ class FastAPIUploadManager(UploadManager):
                 text += paragraph.text + "\n"
             return text
         elif extension == ".pdf":
-            return self.read_pdf(BytesIO(file), self.document_analysis_client)
+            return self.read_pdf(BytesIO(file))
         else:
             print("Converting file to Markdown")
             with tempfile.NamedTemporaryFile(delete=True, suffix=extension) as tmpfile:
