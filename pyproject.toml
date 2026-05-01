@@ -14,8 +14,6 @@ dependencies = [
   "streamlit",
   "pandas",
   "pyodbc",
-  "prompty",
-  "promptflow",
   "langchain_core",
   "langchain_community",
   "langchain_openai",
