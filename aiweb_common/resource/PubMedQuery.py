@@ -1,6 +1,6 @@
 from aiweb_common.generate.SingleResponse import SingleResponseHandler
 from aiweb_common.resource import default_resource_config
-from aiweb_common.WorkflowHandler import WorkflowHandler
+from aiweb_common.WorkflowHandler import WorkflowHandler, extract_response_text
 
 
 class PubMedQueryGenerator(WorkflowHandler):
@@ -42,4 +42,4 @@ class PubMedQueryGenerator(WorkflowHandler):
         response, response_meta = self.single_response.generate_response(assembled_prompt)
         self._update_total_cost(response_meta)
 
-        return response.content
+        return extract_response_text(response.content)
