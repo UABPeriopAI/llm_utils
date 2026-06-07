@@ -9,8 +9,6 @@ dependencies = [
   "streamlit",
   "pandas",
   "pyodbc",
-  "prompty",
-  "promptflow",
   "langchain_core>=1.0.0",
   "langchain_community",
   "langchain_openai>=1.1.14",
@@ -26,7 +24,8 @@ dependencies = [
   "pdfplumber",
   "pillow>=12.2.0",
   "lxml>=6.1.0",
-  "docx"
+  "docx",
+  "pytz"
 ]
 
 # Black formatting
