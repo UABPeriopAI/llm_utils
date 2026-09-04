@@ -22,8 +22,10 @@ dependencies = [
   "python-multipart>=0.0.26",
   "pydantic",
   "pdfplumber",
-  "docx",
-  "pytz"
+  "pytz",
+  "biopython",
+  "requests",
+  "xlsxwriter"
 ]
 
 # Black formatting
