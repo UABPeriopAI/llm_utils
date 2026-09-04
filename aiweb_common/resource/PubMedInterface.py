@@ -1,11 +1,18 @@
+import logging
 import re
 import time
+import xml.etree.ElementTree as ET
 from datetime import datetime
+from io import BytesIO
 from urllib.error import HTTPError
 
 import pandas as pd
+import pdfplumber
+import requests
 import streamlit as st
 from Bio import Entrez, Medline
+
+logger = logging.getLogger(__name__)
 
 # TODO add configuration to LLM_utils that is specific to LLM_Interfaces, PubMed, etc.
 
@@ -252,3 +259,147 @@ class PubMedInterface:
                         st.warning(error_message)
                         st.error(final_message)
                     return []
+
+    def get_pmcid_from_pubmed(self, pmid) -> str:
+        """
+        Look up the PMC ID corresponding to a single PubMed ID via Entrez elink.
+
+        Args:
+        pmid: The PubMed ID (string) to look up.
+
+        Returns:
+        The PMC ID as a string, or an empty string if none was found.
+        """
+        handle = Entrez.elink(
+            dbfrom="pubmed", db="pmc", linkname="pubmed_pmc", id=pmid, retmode="text"
+        )
+        xml_data = handle.read()
+        handle.close()
+        root = ET.fromstring(xml_data)
+        pmcid = ""
+        for link in root.iter("Link"):
+            for id_elem in link.iter("Id"):
+                pmcid = id_elem.text
+        return pmcid
+
+    def get_pmcids_from_pubmed(self, pmids) -> list[str]:
+        """
+        Look up PMC IDs for a list of PubMed IDs.
+
+        Failures for individual PMIDs are logged and yield an empty string
+        rather than propagating the exception.
+
+        Args:
+        pmids: A list of PubMed IDs (strings).
+
+        Returns:
+        A list of PMC ID strings, aligned with the input order.
+        """
+        pmcids = []
+        for pmid in pmids:
+            try:
+                pmcids.append(self.get_pmcid_from_pubmed(pmid))
+            except Exception as e:
+                logger.warning("Failed to retrieve PMCID for %s: %s", pmid, e)
+                pmcids.append("")
+        return pmcids
+
+    def _extract_text_from_pdf_bytes(self, pdf_bytes) -> str:
+        """
+        Extract plain text from in-memory PDF bytes using pdfplumber.
+
+        Args:
+        pdf_bytes: The raw PDF file content as bytes.
+
+        Returns:
+        The concatenated text extracted from all pages.
+        """
+        with pdfplumber.open(BytesIO(pdf_bytes)) as pdf:
+            text = "\n".join(page.extract_text() or "" for page in pdf.pages)
+        return text
+
+    def download_pmc_pdf(self, pmcid) -> tuple:
+        """
+        Download the PDF for a PMC ID from Europe PMC and extract its text.
+
+        Args:
+        pmcid: The PMC ID (string) whose PDF should be retrieved.
+
+        Returns:
+        A (final_url, extracted_text) tuple, or (None, None) if retrieval or
+        processing fails.
+        """
+        try:
+            url = f"http://europepmc.org/backend/ptpmcrender.fcgi?accid=PMC{pmcid}&blobtype=pdf"
+            response = requests.get(url, allow_redirects=True)
+            return response.url, self._extract_text_from_pdf_bytes(response.content)
+        except Exception as e:
+            logger.warning("Failed to retrieve or process PDF for PMCID %s: %s", pmcid, e)
+            return (None, None)
+
+    def get_libkey_text_link(self, pubmed_id, access_token, library_number) -> str | None:
+        """
+        Query the LibKey public API for a full-text link for a PubMed ID.
+
+        Args:
+        pubmed_id: The PubMed ID (string) to look up.
+        access_token: The LibKey API access token.
+        library_number: The LibKey library number.
+
+        Returns:
+        The full-text file URL, or None if the request does not succeed.
+        """
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.3"
+        }
+        api_url = f"https://public-api.thirdiron.com/public/v1/libraries/{library_number}/articles/pmid/{pubmed_id}?access_token={access_token}"
+        response = requests.get(api_url, headers=headers, timeout=5)
+        if response.status_code == 200:
+            return response.json()["data"]["fullTextFile"]
+        logger.warning(
+            "LibKey fetch error for PMID %s: status %s", pubmed_id, response.status_code
+        )
+        return None
+
+    def fetch_full_text(self, pmids, access_token=None, library_number=None) -> pd.DataFrame:
+        """
+        Fetch full text for a list of PubMed IDs.
+
+        For each PMID, first tries to download and extract the PDF from PMC;
+        if that fails and LibKey credentials are provided, falls back to a
+        LibKey full-text link.
+
+        Args:
+        pmids: A list of PubMed IDs (strings).
+        access_token: Optional LibKey API access token.
+        library_number: Optional LibKey library number.
+
+        Returns:
+        A DataFrame with columns 'PMID', 'URL', 'Downloaded', and 'Text'.
+        """
+        data = {"PMID": [], "URL": [], "Downloaded": [], "Text": []}
+        pmcids = self.get_pmcids_from_pubmed(pmids)
+
+        for pmid, pmcid in zip(pmids, pmcids):
+            url = None
+            downloaded = False
+            text = None
+            try:
+                if pmcid:
+                    url, text = self.download_pmc_pdf(pmcid)
+                    downloaded = bool(text)
+                    if not text:
+                        logger.warning("Failed to download PDF from PMC for PMID %s", pmid)
+                if not downloaded and access_token is not None and library_number is not None:
+                    try:
+                        url = self.get_libkey_text_link(pmid, access_token, library_number)
+                    except Exception as e:
+                        logger.debug("No LibKey URL for PMID %s: %s", pmid, e)
+            except Exception as e:
+                logger.error("Error processing PMID %s: %s", pmid, e)
+            data["PMID"].append(pmid)
+            data["URL"].append(url if url else "Not available")
+            data["Downloaded"].append(downloaded)
+            data["Text"].append(text if text else "Text not available")
+
+        return pd.DataFrame(data)
