@@ -33,3 +33,13 @@
         + [Streamlit Common](aiweb_common/streamlit/streamlit_common.md)
     + [Object Factory](aiweb_common/ObjectFactory.md)
     + [Workflow Handler](aiweb_common/WorkflowHandler.md)
+- [Highres Common](): Shared utilities for high-resolution data processing
+    + [Config Utils](highres_common/config_utils.md)
+    + [Table One Creator](highres_common/create_table_one.md)
+    + [Error Analysis](highres_common/error_utils.md)
+    + [File Helper](highres_common/get_data.md)
+    + [Sickbay Waveform Loader](highres_common/get_sickbay_waveform_data.md)
+    + [MLflow Utils](highres_common/mlflow_utils.md)
+    + [Object Factory](highres_common/object_factory.md)
+    + [JSON File Parser](highres_common/parse_json_file.md)
+    + [Time Series Utils](highres_common/time_series_utils.md)

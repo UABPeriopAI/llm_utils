@@ -24,14 +24,14 @@ dev_packages = ["pip-tools", "pandas", "pytest", "pytest-asyncio", "pytest-mock"
 
 # Define our package
 setup(
-    name="aiweb_common",
-    version=0.1,
+    name="llm_utils",
+    version="0.1",
     description="General tools for LLM-based apps",
     author="Perioperative Data Science Team at UAB",
     author_email="rmelvin@uabmc.edu",
     url="https://gitlab.rc.uab.edu/anes_ai/llm_apps/llm_utils.git",
     python_requires=">=3.10",
-    packages=find_packages(),  # only look in directores with __init__.py
+    packages=find_packages(include=["aiweb_common*", "highres_common*"]),
     extras_require={"dev": docs_packages + style_packages + dev_packages, "docs": docs_packages},
-    install_requires=[required_packages],
+    install_requires=required_packages,
 )

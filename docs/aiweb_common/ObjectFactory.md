@@ -1,1 +1,1 @@
-::: aiweb_common.ObjectFactory
+::: highres_common.object_factory.ObjectFactory

@@ -1,8 +1,32 @@
 [project]
-name = "llm_utils"
+name = "aiweb-common"
 version = "0.1.0"
 description = "PoC"
 requires-python = ">=3.11"
+dependencies = [
+  "azure-ai-formrecognizer",
+  "azure-core>=1.38.0",
+  "streamlit",
+  "pandas",
+  "pyodbc",
+  "langchain_core>=1.0.0",
+  "langchain_community",
+  "langchain_openai>=1.1.14",
+  "langchain_prompty",
+  "aiohttp>=3.13.4",
+  "pypandoc",
+  "pymupdf",
+  "python-docx",
+  "fastapi",
+  "python-magic",
+  "python-multipart>=0.0.26",
+  "pydantic",
+  "pdfplumber",
+  "pytz",
+  "biopython",
+  "requests",
+  "xlsxwriter"
+]
 
 # Black formatting
 [tool.black]
@@ -44,6 +68,17 @@ skip = [".gitignore", ".dockerignore", ".venv/*"]
 [project.optional-dependencies]
 dev = [
   "black[jupyter]",
+  "flake8",
+  "isort",
+  "mkdocs",
+  "mkdocs-material",
   "mkdocstrings[python]",
   "mkdocs-monorepo-plugin"
 ]
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]

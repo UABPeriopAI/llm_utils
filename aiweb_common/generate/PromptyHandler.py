@@ -1,7 +1,7 @@
 from pathlib import Path
 
 import yaml
-from langchain.prompts import ChatPromptTemplate
+from langchain_core.prompts import ChatPromptTemplate
 from langchain_community.callbacks import get_openai_callback  # Add this import
 
 
