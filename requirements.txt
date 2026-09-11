@@ -18,6 +18,8 @@ python-magic
 python-multipart>=0.0.26
 pydantic
 pdfplumber
+requests
+xlsxwriter
 pillow>=12.2.0
 lxml>=6.1.0
 docx
